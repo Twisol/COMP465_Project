@@ -9,11 +9,24 @@ set(SOURCE_FILES
     buildconf.h.in
 )
 
+# Funny hack to prevent GLUT from importing both gl.h and gl3.h
+if(${APPLE})
+  add_definitions(-D__gl_h -DGL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED)
+endif()
+
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIR})
 
 find_package(GLUT REQUIRED)
 include_directories(${GLUT_INCLUDE_DIR})
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+
+# Add GLM
+if(${APPLE})
+  include_directories("/usr/local/Cellar/glm/0.9.6.3/include/")
+endif()
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/buildconf.h.in"
@@ -21,9 +34,10 @@ configure_file(
 )
 include_directories("${PROJECT_BINARY_DIR}")
 
-
-#/usr/local/Cellar/freeglut/2.8.1/include
-#/usr/local/Cellar/freeglut/2.8.1/lib/libglut.a
-
 add_executable(COMP465_Project ${SOURCE_FILES})
-target_link_libraries(COMP465_Project ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+target_link_libraries(
+    COMP465_Project
+    ${OPENGL_LIBRARIES}
+    ${GLUT_LIBRARIES}
+    ${GLEW_LIBRARIES}
+)
