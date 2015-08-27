@@ -1,3 +1,3 @@
 #pragma once
 
-#define VERSION @COMP465_Project_VERSION
+#define VERSION "${COMP465_Project_VERSION}"
