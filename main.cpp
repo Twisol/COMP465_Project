@@ -14,7 +14,7 @@
 using namespace std;
 
 
-#define KEY_ESCAPE '\x1B'
+static const unsigned char KEY_ESCAPE = '\x1B';
 
 
 // A structure representing top-level information about the application.
@@ -31,6 +31,8 @@ static App G_APP;
 void render_callback() {
   glClear(GL_COLOR_BUFFER_BIT);
 
+  //...
+
   glutSwapBuffers();
 }
 
@@ -41,6 +43,8 @@ void keyboard_callback(unsigned char key, int /*y*/, int /*x*/) {
       glutDestroyWindow(G_APP.window_id);
       exit(0);
     } break;
+
+    //...
   }
 
   // Posts a "redisplay" message to GLUT's event queue,
