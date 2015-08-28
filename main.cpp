@@ -1,11 +1,9 @@
 #include "buildconf.h"
 
-#define GLFW_INCLUDE_GLU
-
 // Provides the glm::vec3 class
 #include <glm/vec3.hpp>
 // GL Extension Wrangler - automatically fetches and assigns OpenGL function pointers
-#include <gl/glew.h>
+#include <GL/glew.h>
 // Cross-platform GL context and window toolkit. Handles the boilerplate.
 #include <GLFW/glfw3.h>
 // Math library tailored for OpenGL development
@@ -174,7 +172,7 @@ int main(int /*argc*/, char** /*argv*/) {
   }
   G_APP.window = window;
 
-  // Mark the OpenGL context as current. This is necessary for any gl* actions to apply to this window.
+  // Mark the OpenGL context as current. This is necessary for any gl* and glew* actions to apply to this window.
   glfwMakeContextCurrent(G_APP.window);
 
   cout << "Running version " << VERSION << " with OpenGL version " << glGetString(GL_VERSION) << ", GLSL version " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "." << endl;
@@ -182,8 +180,7 @@ int main(int /*argc*/, char** /*argv*/) {
   // Initialize GLEW, which automatically makes available any OpenGL
   // extensions supported on the system.
   //
-  // glewInit must only be called after a GL context is made current,
-  // in this case by glutCreateWindow.
+  // glewInit must only be called after a GL context is made current.
   glewExperimental = GL_TRUE;
   GLenum glewError = glewInit();
   if (glewError != GLEW_OK) {

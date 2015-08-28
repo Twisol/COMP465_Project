@@ -1,28 +1,23 @@
 cmake_minimum_required(VERSION 3.3)
-project(COMP465_Project)
 
+## Dependencies
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeFiles/Modules/")
 
-set(COMP465_Project_VERSION 0.0.1)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic -Werror -Wno-deprecated")
-set(SOURCE_FILES
-    main.cpp
-    buildconf.h.in
-)
-
-find_package(OpenGL REQUIRED)
+find_package(OPENGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIR})
+set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${OPENGL_LIBRARIES}")
 
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
+set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLEW_LIBRARIES}")
 
 find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIR})
+set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLFW_LIBRARIES}")
 
 find_package(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIR})
-
+set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLM_LIBRARIES}")
 
 # Funny hack to prevent GLUT from including both gl.h and gl3.h
 if(${APPLE})
@@ -35,9 +30,20 @@ if(${APPLE})
   )
 endif()
 
+
+## Project configuration
+project(COMP465_Project)
+
+set(COMP465_Project_VERSION 0.0.1)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic")
+set(SOURCE_FILES
+    main.cpp
+    buildconf.h.in
+)
+
 # Create a build configuration header.
-# This may be useful in the future, but for now it just
-# adds the VERSION defined above.
+# This may be useful in the future, but for now it just adds the VERSION defined above.
 configure_file(
     "${PROJECT_SOURCE_DIR}/buildconf.h.in"
     "${PROJECT_BINARY_DIR}/buildconf.h"
@@ -45,10 +51,4 @@ configure_file(
 include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(COMP465_Project ${SOURCE_FILES})
-target_link_libraries(
-    COMP465_Project
-    ${OPENGL_LIBRARIES}
-    ${GLUT_LIBRARIES}
-    ${GLFW_LIBRARIES}
-    ${GLEW_LIBRARIES}
-)
+target_link_libraries(COMP465_Project ${STATIC_DEPENDENCIES})
