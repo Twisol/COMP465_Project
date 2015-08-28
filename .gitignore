@@ -1,2 +1,4 @@
 .idea
 buildconf.h
+CMakeOutput.log
+CMakeSystem.cmake

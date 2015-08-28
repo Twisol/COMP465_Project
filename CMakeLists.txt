@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.3)
 project(COMP465_Project)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeFiles/Modules/")
+
 set(COMP465_Project_VERSION 0.0.1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic -Werror -Wno-deprecated")
@@ -9,26 +11,20 @@ set(SOURCE_FILES
     buildconf.h.in
 )
 
+find_package(PkgConfig REQUIRED)
+
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIR})
-
-find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIR})
 
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
 
-# Add GLM
-if(${APPLE})
-  # JMC: This is where Homebrew installed it on my system.
-  # I'm assuming the location for this version will be the same
-  # on any other system with Homebrew.
-  include_directories("/usr/local/Cellar/glm/0.9.6.3/include/")
-elseif(${UNIX})
-  # ???
-elseif(${MSV})
-  # ???
-endif()
+find_package(GLFW REQUIRED)
+include_directories(${GLFW_INCLUDE_DIR})
+
+find_package(GLM REQUIRED)
+include_directories(${GLM_INCLUDE_DIR})
+
 
 # Funny hack to prevent GLUT from including both gl.h and gl3.h
 if(${APPLE})
@@ -55,5 +51,6 @@ target_link_libraries(
     COMP465_Project
     ${OPENGL_LIBRARIES}
     ${GLUT_LIBRARIES}
+    ${GLFW_LIBRARIES}
     ${GLEW_LIBRARIES}
 )
