@@ -1,23 +1,29 @@
 cmake_minimum_required(VERSION 3.3)
+project(COMP465_Project)
 
 ## Dependencies
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeFiles/Modules/")
 
-find_package(OPENGL REQUIRED)
-include_directories(${OpenGL_INCLUDE_DIR})
-set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${OPENGL_LIBRARIES}")
+
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
+message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+set(STATIC_DEPENDENCIES "${STATIC_DEPENDENCIES};${OPENGL_LIBRARIES}")
 
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
-set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLEW_LIBRARIES}")
+message(STATUS "GLEW_LIBRARIES: ${GLEW_LIBRARIES}")
+set(STATIC_DEPENDENCIES "${STATIC_DEPENDENCIES};${GLEW_LIBRARIES}")
 
 find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIR})
-set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLFW_LIBRARIES}")
+message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
+set(STATIC_DEPENDENCIES "${STATIC_DEPENDENCIES};${GLFW_LIBRARIES}")
 
 find_package(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIR})
-set(STATIC_DEPENDENCIES ${STATIC_DEPENDENCIES} "${GLM_LIBRARIES}")
+message(STATUS "GLM_LIBRARIES: ${GLM_LIBRARIES}")
+set(STATIC_DEPENDENCIES "${STATIC_DEPENDENCIES};${GLM_LIBRARIES}")
 
 # Funny hack to prevent GLUT from including both gl.h and gl3.h
 if(${APPLE})
@@ -32,8 +38,6 @@ endif()
 
 
 ## Project configuration
-project(COMP465_Project)
-
 set(COMP465_Project_VERSION 0.0.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic")

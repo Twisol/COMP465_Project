@@ -185,6 +185,7 @@ int main(int /*argc*/, char** /*argv*/) {
   GLenum glewError = glewInit();
   if (glewError != GLEW_OK) {
     cout << "GLEW could not be initialized." << endl;
+    return 1;
   }
 
   // Initialize our OpenGL rendering context
