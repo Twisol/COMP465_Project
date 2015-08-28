@@ -11,8 +11,6 @@ set(SOURCE_FILES
     buildconf.h.in
 )
 
-find_package(PkgConfig REQUIRED)
-
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIR})
 
