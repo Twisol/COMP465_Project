@@ -27,6 +27,7 @@ struct App {
 static App G_APP;
 
 
+// Compiles and links a GL program using shaders provided as source strings.
 GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t fs_length) {
   if (vs_length > std::numeric_limits<GLint>::max()) {
     fprintf(stderr, "Vertex shader source too long for OpenGL\n");
@@ -91,6 +92,7 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
   return program;
 }
 
+// Compiles and links a GL shader progran using shaders loaded from the filesystem.
 GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
   char vs[256*1024];  // shader size up to 256 KiB
   size_t vs_length = 0;
@@ -128,6 +130,8 @@ void render() {
 #endif
 
   //...
+
+  glfwSwapBuffers(G_APP.window);
 }
 
 // Processes ASCII keyboard input.
@@ -139,10 +143,13 @@ void keyboard_callback(GLFWwindow* window, int key, int /*scancode*/, int action
   //...
 }
 
+
+// A GLFW callback handling GLFW errors
 void error_callback(int /*error*/, char const* description) {
   cerr << description << endl;
 }
 
+// Entry point.
 int main(int /*argc*/, char** /*argv*/) {
   // Initialize GLFW and set an error callback
   if (!glfwInit()) {
@@ -196,7 +203,6 @@ int main(int /*argc*/, char** /*argv*/) {
 
   while (!glfwWindowShouldClose(G_APP.window)) {
     render();
-    glfwSwapBuffers(G_APP.window);
     glfwPollEvents();
   }
 
