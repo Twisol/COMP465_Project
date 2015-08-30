@@ -4,6 +4,8 @@
 #include <cstdio>
 
 // Compiles and links a GL program using shaders provided as source strings.
+//
+// TODO: Leaks shader handles if the shaders or program fail to compile/link.
 GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t fs_length) {
   if (vs_length > std::numeric_limits<GLint>::max()) {
     fprintf(stderr, "Vertex shader source too long for OpenGL\n");
@@ -13,43 +15,47 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
     return GL_NONE;
   }
 
+  GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
   GLuint program = glCreateProgram();
 
   {
-    GLuint shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(shader, 1, &vs, (GLint const*)&vs_length);
-    glCompileShader(shader);
+    glShaderSource(vertex_shader, 1, &vs, (GLint const*)&vs_length);
+    glCompileShader(vertex_shader);
 
     GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
       GLchar log[1024];
-      glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+      glGetShaderInfoLog(vertex_shader, sizeof(log), NULL, log);
 
       fprintf(stderr, "Error compiling vertex shader:\n%s\n\n", log);
       return GL_NONE;
     }
-
-    glAttachShader(program, shader);
   }
 
   {
-    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(shader, 1, &fs, (GLint const*)&fs_length);
-    glCompileShader(shader);
+    glShaderSource(fragment_shader, 1, &fs, (GLint const*)&fs_length);
+    glCompileShader(fragment_shader);
 
     GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
       GLchar log[1024];
-      glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+      glGetShaderInfoLog(fragment_shader, sizeof(log), NULL, log);
 
       fprintf(stderr, "Error compiling fragment shader:\n%s\n\n", log);
       return GL_NONE;
     }
-
-    glAttachShader(program, shader);
   }
+
+  // Attach the shader to the program, then delete our reference to the shader.
+  // The shader remains live, since it's attached to the program.
+  glAttachShader(program, vertex_shader);
+  glDeleteShader(vertex_shader);
+
+  glAttachShader(program, fragment_shader);
+  glDeleteShader(fragment_shader);
 
   glLinkProgram(program);
 
@@ -64,6 +70,10 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
       return GL_NONE;
     }
   }
+
+  // Now that linking is complete, release the shader objects.
+  glDetachShader(program, vertex_shader);
+  glDetachShader(program, fragment_shader);
 
   return program;
 }

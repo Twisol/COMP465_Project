@@ -3,7 +3,11 @@
 // Project shared header
 #include "shared.h"
 
+// Cross-platform GL context and window toolkit. Handles the boilerplate.
+#include <GLFW/glfw3.h>
 
+
+// An interface for top-level render loop hooks.
 class IComponent {
 public:
   virtual ~IComponent() {}
@@ -15,6 +19,7 @@ public:
   virtual void OnTimeStep() {}
   virtual void OnRedraw() {}
 };
+
 
 // A structure representing top-level information about the application.
 class App : IComponent {

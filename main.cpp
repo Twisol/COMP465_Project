@@ -1,8 +1,12 @@
 #include "App.h"
 
+// Cross-platform GL context and window toolkit. Handles the boilerplate.
+#include <GLFW/glfw3.h>
+
 #include <iostream>
 
 using namespace std;
+
 
 // Store top-level application information as a static singleton, so that
 // the GLUT callbacks can access it properly.
@@ -60,6 +64,7 @@ int main(int /*argc*/, char** /*argv*/) {
     cout << "GLEW could not be initialized." << endl;
     return 1;
   }
+  while (glGetError() != GL_NO_ERROR) {}  // Purge the GL_INVALID_ENUM which glewInit may cause.
 
   // Initialize our OpenGL rendering context.
   G_APP.OnAcquireContext(window);
