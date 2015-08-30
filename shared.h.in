@@ -1,0 +1,11 @@
+#pragma once
+
+// GL Extension Wrangler - automatically fetches and assigns OpenGL function pointers
+#include <GL/glew.h>
+// Cross-platform GL context and window toolkit. Handles the boilerplate.
+#include <GLFW/glfw3.h>
+// Math library tailored for OpenGL development
+#include <glm/glm.hpp>
+
+#define VERSION "${COMP465_Project_VERSION}"
+#define GL_SAFETY 1

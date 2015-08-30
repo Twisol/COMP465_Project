@@ -1,144 +1,17 @@
-#include "buildconf.h"
-
-// Provides the glm::vec3 class
-#include <glm/vec3.hpp>
-// GL Extension Wrangler - automatically fetches and assigns OpenGL function pointers
-#include <GL/glew.h>
-// Cross-platform GL context and window toolkit. Handles the boilerplate.
-#include <GLFW/glfw3.h>
-// Math library tailored for OpenGL development
-#include <glm/glm.hpp>
+#include "App.h"
 
 #include <iostream>
 
 using namespace std;
-
-
-// A structure representing top-level information about the application.
-struct App {
-  GLFWwindow* window;  // The GLFW window for this app
-  GLuint shader_id;  // The ID of the current shader program.
-};
 
 // Store top-level application information as a static singleton, so that
 // the GLUT callbacks can access it properly.
 static App G_APP;
 
 
-// Compiles and links a GL program using shaders provided as source strings.
-GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t fs_length) {
-  if (vs_length > std::numeric_limits<GLint>::max()) {
-    fprintf(stderr, "Vertex shader source too long for OpenGL\n");
-    return GL_NONE;
-  } else if (fs_length > std::numeric_limits<GLint>::max()) {
-    fprintf(stderr, "Fragment shader source too long for OpenGL\n");
-    return GL_NONE;
-  }
-
-  GLuint program = glCreateProgram();
-
-  {
-    GLuint shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(shader, 1, &vs, (GLint const*)&vs_length);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (success != GL_TRUE) {
-      GLchar log[1024];
-      glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-
-      fprintf(stderr, "Error compiling vertex shader:\n%s\n\n", log);
-      return GL_NONE;
-    }
-
-    glAttachShader(program, shader);
-  }
-
-  {
-    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(shader, 1, &fs, (GLint const*)&fs_length);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (success != GL_TRUE) {
-      GLchar log[1024];
-      glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-
-      fprintf(stderr, "Error compiling fragment shader:\n%s\n\n", log);
-      return GL_NONE;
-    }
-
-    glAttachShader(program, shader);
-  }
-
-  glLinkProgram(program);
-
-  {
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (success != GL_TRUE) {
-      GLchar log[1024];
-      glGetProgramInfoLog(program, sizeof(log), NULL, log);
-
-      fprintf(stderr, "Error linking shader program:\n%s\n\n", log);
-      return GL_NONE;
-    }
-  }
-
-  return program;
-}
-
-// Compiles and links a GL shader progran using shaders loaded from the filesystem.
-GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
-  char vs[256*1024];  // shader size up to 256 KiB
-  size_t vs_length = 0;
-  {
-    FILE* f = fopen(vs_path, "r");
-    vs_length = fread(vs, 1, sizeof(vs), f);
-    if (!feof(f)) {
-      fprintf(stderr, "Vertex shader too long to load from disk.\n");
-      return GL_NONE;
-    }
-  }
-
-  char fs[256*1024];  // shader size up to 256 KiB
-  size_t fs_length = 0;
-  {
-    FILE* f = fopen(fs_path, "r");
-    fs_length = fread(fs, 1, sizeof(fs), f);
-    if (!feof(f)) {
-      fprintf(stderr, "Fragment shader too long to load from disk.\n");
-      return GL_NONE;
-    }
-  }
-
-  return create_program(vs, vs_length, fs, fs_length);
-}
-
-
-// Renders a frame.
-void render() {
-  glClear(GL_COLOR_BUFFER_BIT);
-  //...
-
-#if GL_SAFETY
-  glValidateProgram(G_APP.shader_id);
-#endif
-
-  //...
-
-  glfwSwapBuffers(G_APP.window);
-}
-
 // Processes ASCII keyboard input.
-void keyboard_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int /*mode*/) {
-  if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-    glfwSetWindowShouldClose(window, GL_TRUE);
-  }
-
-  //...
+void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
+  G_APP.OnKeyEvent(key, action);
 }
 
 
@@ -170,12 +43,12 @@ int main(int /*argc*/, char** /*argv*/) {
     cout << "Unable to create GLFW window" << endl;
     return 1;
   }
-  G_APP.window = window;
 
   // Mark the OpenGL context as current. This is necessary for any gl* and glew* actions to apply to this window.
-  glfwMakeContextCurrent(G_APP.window);
+  glfwMakeContextCurrent(window);
 
-  cout << "Running version " << VERSION << " with OpenGL version " << glGetString(GL_VERSION) << ", GLSL version " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "." << endl;
+  // Register for keyboard events on this window
+  glfwSetKeyCallback(window, &keyboard_callback);
 
   // Initialize GLEW, which automatically makes available any OpenGL
   // extensions supported on the system.
@@ -188,24 +61,19 @@ int main(int /*argc*/, char** /*argv*/) {
     return 1;
   }
 
-  // Initialize our OpenGL rendering context
-  {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    //...
+  // Initialize our OpenGL rendering context.
+  G_APP.OnAcquireContext(window);
 
-    // Load our shader program
-    G_APP.shader_id = create_program_from_files("shaders/vertex.glsl", "shaders/fragment.glsl");
-  }
-
-  glfwSetKeyCallback(G_APP.window, &keyboard_callback);
-
-  while (!glfwWindowShouldClose(G_APP.window)) {
-    render();
+  while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
+
+    G_APP.OnTimeStep();
+    G_APP.OnRedraw();
   }
 
-  glfwDestroyWindow(G_APP.window);
-  G_APP.window = NULL;
+  // Clean up after ourselves
+  G_APP.OnReleaseContext();
+  glfwDestroyWindow(window);
 
   glfwTerminate();
   return 0;

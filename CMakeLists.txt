@@ -39,18 +39,18 @@ endif()
 
 ## Project configuration
 set(COMP465_Project_VERSION 0.0.1)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic")
 set(SOURCE_FILES
     main.cpp
-    buildconf.h.in
-)
+    shaders.cpp
+    App.cpp)
 
 # Create a build configuration header.
 # This may be useful in the future, but for now it just adds the VERSION defined above.
 configure_file(
-    "${PROJECT_SOURCE_DIR}/buildconf.h.in"
-    "${PROJECT_BINARY_DIR}/buildconf.h"
+    "${PROJECT_SOURCE_DIR}/shared.h.in"
+    "${PROJECT_BINARY_DIR}/shared.h"
 )
 include_directories("${PROJECT_BINARY_DIR}")
 
