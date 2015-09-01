@@ -60,6 +60,7 @@ void App::OnRedraw() {
     // Set up uniform values
     // Uniforms usually involve properties of an _instance_ of a model, such as position and orientation.
     {
+      // TODO: Source this matrix from an instance object.
       GLfloat matrix[] = {
           1, 0, 0, 0,
           0, 1, 0, 0,
