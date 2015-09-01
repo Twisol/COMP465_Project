@@ -3,6 +3,8 @@
 // Project shared header
 #include "shared.h"
 
+#include "Model.h"
+
 // Cross-platform GL context and window toolkit. Handles the boilerplate.
 #include <GLFW/glfw3.h>
 
@@ -24,10 +26,6 @@ public:
 // A structure representing top-level information about the application.
 class App : IComponent {
 public:
-  App()
-      : window(NULL), shader_id(0)
-  {}
-
   virtual void OnAcquireContext(GLFWwindow* window);
   virtual void OnReleaseContext();
 
@@ -36,6 +34,7 @@ public:
   virtual void OnRedraw();
 
 private:
-  GLFWwindow* window;  // The GLFW window for this app
-  GLuint shader_id;  // The ID of the current shader program.
+  GLFWwindow* window = NULL;  // The GLFW window for this app
+  GLuint shader_id = GL_NONE;  // The ID of the current shader program.
+  Model triangleModel;
 };

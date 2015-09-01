@@ -50,6 +50,7 @@ set(SOURCE_FILES
     shaders.cpp
     App.cpp
     util/debug.cpp
+    Model.cpp
 )
 
 # Create a build configuration header.

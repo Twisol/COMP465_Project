@@ -1,38 +1,18 @@
 #include "App.h"
 
-// Cross-platform GL context and window toolkit. Handles the boilerplate.
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 
 using namespace std;
 
 
-// Store top-level application information as a static singleton, so that
-// the GLUT callbacks can access it properly.
-static App G_APP;
+static GLFWwindow* setupGLFW(int width, int height, char const* title, GLFWerrorfun error_callback) {
+  glfwSetErrorCallback(error_callback);
 
-
-// Processes ASCII keyboard input.
-void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
-  G_APP.OnKeyEvent(key, action);
-}
-
-
-// A GLFW callback handling GLFW errors
-void error_callback(int /*error*/, char const* description) {
-  cerr << description << endl;
-}
-
-// Entry point.
-int main(int /*argc*/, char** /*argv*/) {
   // Initialize GLFW and set an error callback
   if (!glfwInit()) {
     cout << "Unable to initialize GLFW" << endl;
-    return 1;
+    return NULL;
   }
-
-  glfwSetErrorCallback(&error_callback);
 
   // For the sake of OS X, ensure that we get a modern OpenGL context
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -41,19 +21,17 @@ int main(int /*argc*/, char** /*argv*/) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   // Create a window with the desired dimensions and title
-  GLFWwindow* window = glfwCreateWindow(1024, 768, "Project Phase 1", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
   if (!window) {
     glfwTerminate();
     cout << "Unable to create GLFW window" << endl;
-    return 1;
+    return NULL;
   }
 
-  // Mark the OpenGL context as current. This is necessary for any gl* and glew* actions to apply to this window.
-  glfwMakeContextCurrent(window);
+  return window;
+}
 
-  // Register for keyboard events on this window
-  glfwSetKeyCallback(window, &keyboard_callback);
-
+static bool setupGLEW() {
   // Initialize GLEW, which automatically makes available any OpenGL
   // extensions supported on the system.
   //
@@ -62,22 +40,73 @@ int main(int /*argc*/, char** /*argv*/) {
   GLenum glewError = glewInit();
   if (glewError != GLEW_OK) {
     cout << "GLEW could not be initialized." << endl;
+    return false;
+  }
+
+  // Purge the GL_INVALID_ENUM which glewInit may cause.
+  while (glGetError() != GL_NO_ERROR) {}
+
+  return true;
+}
+
+
+// Store top-level application information as a static singleton, so that
+// the GLFW callbacks can access it properly.
+static App* G_APP = NULL;
+
+// Processes ASCII keyboard input.
+void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
+  G_APP->OnKeyEvent(key, action);
+}
+
+// A GLFW callback handling GLFW errors
+void error_callback(int /*error*/, char const* description) {
+  cerr << description << endl;
+}
+
+// Entry point.
+int main(int /*argc*/, char** /*argv*/) {
+  // Initialize GLFW
+  GLFWwindow* const window = setupGLFW(1024, 768, "Project Phase 1", &error_callback);
+  if (!window) {
+    cout << "Unable to initialize GLFW." << endl;
     return 1;
   }
-  while (glGetError() != GL_NO_ERROR) {}  // Purge the GL_INVALID_ENUM which glewInit may cause.
 
-  // Initialize our OpenGL rendering context.
-  G_APP.OnAcquireContext(window);
+  // Mark the OpenGL context as current. This is necessary for any gl* and glew* actions to apply to this window.
+  glfwMakeContextCurrent(window);
 
-  while (!glfwWindowShouldClose(window)) {
-    glfwPollEvents();
-
-    G_APP.OnTimeStep();
-    G_APP.OnRedraw();
+  // Initialize GLEW
+  if (!setupGLEW()) {
+    cout << "GLEW could not be initialized." << endl;
+    return 1;
   }
 
-  // Clean up after ourselves
-  G_APP.OnReleaseContext();
+  // Set up our app object
+  App app;
+
+  {
+    G_APP = &app;
+
+    // Register for keyboard events on this window
+    glfwSetKeyCallback(window, &keyboard_callback);
+
+    // Notify the app object that a GL context has been acquired
+    G_APP->OnAcquireContext(window);
+
+    while (!glfwWindowShouldClose(window)) {
+      glfwPollEvents();
+
+      G_APP->OnTimeStep();
+      G_APP->OnRedraw();
+    }
+
+    // Clean up after ourselves
+    G_APP->OnReleaseContext();
+
+    G_APP = NULL;
+  }
+
   glfwDestroyWindow(window);
 
   glfwTerminate();
