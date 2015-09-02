@@ -51,6 +51,7 @@ set(SOURCE_FILES
     App.cpp
     util/debug.cpp
     Model.cpp
+    Instance.h
 )
 
 # Create a build configuration header.

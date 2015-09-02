@@ -1,6 +1,5 @@
 #include "Model.h"
 
-
 Model loadTriangleModel() {
   Model model;
 
@@ -25,7 +24,7 @@ Model loadTriangleModel() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (GLvoid*)0);
   glEnableVertexAttribArray(0);  // TODO: What even is this? It's necessary, but what does it mean?
 
-  // Slow 1 refers to the color data.
+  // Slot 1 refers to the color data.
   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
   glEnableVertexAttribArray(1);
 

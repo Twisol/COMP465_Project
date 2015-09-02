@@ -1,8 +1,6 @@
 #include "App.h"
 #include "shaders.h"
-
-// Math library tailored for OpenGL development
-#include <glm/glm.hpp>
+#include "Instance.h"
 
 #include <iostream>
 
@@ -54,25 +52,22 @@ void App::OnRedraw() {
 
   // TODO: Iterate over a collection of drawables
   {
-    // Install our shader into the pipeline for this model
+    // Use our simple ("orthogonal projection, 100% ambient light") shader for this model.
     glUseProgram(this->shader_id);
 
+    // TODO: Store this instance somewhere more permanent
+    Instance tri;
+    tri.model = &this->triangleModel;
+
     // Set up uniform values
-    // Uniforms usually involve properties of an _instance_ of a model, such as position and orientation.
+    // Uniforms usually involve properties of an _instance_ of a model, such as its reference frame.
     {
-      // TODO: Source this matrix from an instance object.
-      GLfloat matrix[] = {
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1
-      };
       GLint location = glGetUniformLocation(this->shader_id, "transform");
-      glUniformMatrix4fv(location, 1, 0, matrix);
+      glUniformMatrix4fv(location, 1, 0, (GLfloat*)&tri.frame);
     }
 
     // Bind the necessary draw state for this model
-    glBindVertexArray(this->triangleModel.vao);
+    glBindVertexArray(tri.model->vao);
     if (!assertShaderValid(this->shader_id)) {
       // TODO: Throw an exception instead so the environment is cleaned up properly.
       exit(1);
