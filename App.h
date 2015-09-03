@@ -2,11 +2,15 @@
 
 // Project shared header
 #include "shared.h"
-
 #include "Model.h"
+#include "Instance.h"
 
 // Cross-platform GL context and window toolkit. Handles the boilerplate.
 #include <GLFW/glfw3.h>
+// GLM forward declarations
+#include <glm/fwd.hpp>
+
+#include <vector>
 
 
 // An interface for top-level render loop hooks.
@@ -24,7 +28,7 @@ public:
 
 
 // A structure representing top-level information about the application.
-class App : IComponent {
+class App : public IComponent {
 public:
   virtual void OnAcquireContext(GLFWwindow* window);
   virtual void OnReleaseContext();
@@ -34,7 +38,9 @@ public:
   virtual void OnRedraw();
 
 private:
-  GLFWwindow* window = NULL;  // The GLFW window for this app
+  GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
-  Model triangleModel;
+  Model triangleModel;  // A reference to model data in GPU memory
+
+  std::vector<Instance> drawables;  // The set of things which will be drawn on redraw.
 };

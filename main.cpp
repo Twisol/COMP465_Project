@@ -11,7 +11,7 @@ static GLFWwindow* setupGLFW(int width, int height, char const* title, GLFWerror
   // Initialize GLFW and set an error callback
   if (!glfwInit()) {
     cout << "Unable to initialize GLFW" << endl;
-    return NULL;
+    return nullptr;
   }
 
   // For the sake of OS X, ensure that we get a modern OpenGL context
@@ -21,11 +21,11 @@ static GLFWwindow* setupGLFW(int width, int height, char const* title, GLFWerror
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   // Create a window with the desired dimensions and title
-  GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
   if (!window) {
     glfwTerminate();
     cout << "Unable to create GLFW window" << endl;
-    return NULL;
+    return nullptr;
   }
 
   return window;
@@ -50,9 +50,8 @@ static bool setupGLEW() {
 }
 
 
-// Store top-level application information as a static singleton, so that
-// the GLFW callbacks can access it properly.
-static App* G_APP = NULL;
+// Keep a reference to the active app so that GLFW callbacks can access it.
+static IComponent* G_APP = nullptr;
 
 // Processes ASCII keyboard input.
 void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
@@ -76,13 +75,15 @@ int main(int /*argc*/, char** /*argv*/) {
   // Mark the OpenGL context as current. This is necessary for any gl* and glew* actions to apply to this window.
   glfwMakeContextCurrent(window);
 
-  // Initialize GLEW
+  // Initialize GLEW.
+  // Note that this has to happen AFTER a GL context is made current.
   if (!setupGLEW()) {
     cout << "GLEW could not be initialized." << endl;
     return 1;
   }
 
-  // Set up our app object
+  // Set up our app object.
+  // Note that this has to happen AFTER a GL context is made current.
   App app;
 
   {
@@ -94,6 +95,8 @@ int main(int /*argc*/, char** /*argv*/) {
     // Notify the app object that a GL context has been acquired
     G_APP->OnAcquireContext(window);
 
+    // Game Loop pattern
+    // More information at http://gameprogrammingpatterns.com/game-loop.html
     while (!glfwWindowShouldClose(window)) {
       glfwPollEvents();
 
@@ -104,7 +107,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // Clean up after ourselves
     G_APP->OnReleaseContext();
 
-    G_APP = NULL;
+    G_APP = nullptr;
   }
 
   glfwDestroyWindow(window);

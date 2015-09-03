@@ -27,7 +27,7 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
       GLchar log[1024];
-      glGetShaderInfoLog(vertex_shader, sizeof(log), NULL, log);
+      glGetShaderInfoLog(vertex_shader, sizeof(log), nullptr, log);
 
       fprintf(stderr, "Error compiling vertex shader:\n%s\n\n", log);
       return GL_NONE;
@@ -42,7 +42,7 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
       GLchar log[1024];
-      glGetShaderInfoLog(fragment_shader, sizeof(log), NULL, log);
+      glGetShaderInfoLog(fragment_shader, sizeof(log), nullptr, log);
 
       fprintf(stderr, "Error compiling fragment shader:\n%s\n\n", log);
       return GL_NONE;
@@ -64,7 +64,7 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (success != GL_TRUE) {
       GLchar log[1024];
-      glGetProgramInfoLog(program, sizeof(log), NULL, log);
+      glGetProgramInfoLog(program, sizeof(log), nullptr, log);
 
       fprintf(stderr, "Error linking shader program:\n%s\n\n", log);
       return GL_NONE;
@@ -84,6 +84,11 @@ GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
   size_t vs_length = 0;
   {
     FILE* f = fopen(vs_path, "r");
+    if (!f) {
+      fprintf(stderr, "Unable to open file '%s'.\n", vs_path);
+      return GL_NONE;
+    }
+
     vs_length = fread(vs, 1, sizeof(vs), f);
     if (!feof(f)) {
       fprintf(stderr, "Vertex shader too long to load from disk.\n");
@@ -95,6 +100,11 @@ GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
   size_t fs_length = 0;
   {
     FILE* f = fopen(fs_path, "r");
+    if (!f) {
+      fprintf(stderr, "Unable to open file '%s'.\n", fs_path);
+      return GL_NONE;
+    }
+
     fs_length = fread(fs, 1, sizeof(fs), f);
     if (!feof(f)) {
       fprintf(stderr, "Fragment shader too long to load from disk.\n");
@@ -114,7 +124,7 @@ bool assertShaderValid(GLuint program) {
   glGetProgramiv(program, GL_VALIDATE_STATUS, &isValid);
   if (isValid == GL_FALSE) {
     GLchar log[1024];
-    glGetProgramInfoLog(program, sizeof(log), NULL, log);
+    glGetProgramInfoLog(program, sizeof(log), nullptr, log);
 
     fprintf(stderr, "Error linking shader program:\n%s\n\n", log);
     return false;

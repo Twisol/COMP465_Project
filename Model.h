@@ -8,18 +8,31 @@ struct Model {
 
   Model() {
     // Create a GPU memory handle
+    // This allows you to allocate and store things in GPU memory.
+    // Initially, there is no memory associated with this handle.
     glGenBuffers(1, &this->vbo);
 
     // Create a vertex array object (VAO).
-    // TODO: I don't really know what these are, but you have to have one.
+    // This captures information about which VBOs to look at for which vertex attributes,
+    // and where within each VBO each attribute can be found.
+    // Binding a VAO makes all of this information immediately active in the GL state machine,
+    // making rendering much simpler.
     glGenVertexArrays(1, &this->vao);
   }
 
-  Model(Model&& other) {
-    this->vbo = other.vbo;
-    this->vao = other.vao;
+  ~Model() {
+    glDeleteVertexArrays(1, &this->vao);
+    glDeleteBuffers(1, &this->vbo);
   }
 
+  /* Implement move semantics for this type. */
+  Model(Model&& other) {
+    this->vbo = other.vbo;
+    other.vbo = GL_NONE;
+
+    this->vao = other.vao;
+    other.vao = GL_NONE;
+  }
   Model& operator=(Model&& other) {
     if (this == &other) {
       return *this;
@@ -36,9 +49,8 @@ struct Model {
     return *this;
   }
 
-  ~Model() {
-    glDeleteVertexArrays(1, &this->vao);
-    glDeleteBuffers(1, &this->vbo);
+  virtual void BindVertexData() const {
+    glBindVertexArray(this->vao);
   }
 };
 
