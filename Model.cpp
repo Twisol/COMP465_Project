@@ -11,9 +11,9 @@ Model loadTriangleModel() {
   {
     GLfloat vertices[(3+4)*3] = {
         // position           color
-        -1.0f, -1.0f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f,  1.0f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,
+        -10.0f, -10.0f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,
+        10.0f, -10.0f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f,  10.0f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
