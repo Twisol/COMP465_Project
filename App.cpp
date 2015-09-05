@@ -18,7 +18,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->window = window;
   this->shader_id = create_program_from_files("shaders/vertex.glsl", "shaders/fragment.glsl");
 
-  // Transformation from camera space into clip space
+  // Transformation from camera space into clip space.
   // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
   this->projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.0001f, 100.0f);
 

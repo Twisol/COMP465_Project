@@ -42,12 +42,12 @@ private:
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
   Model triangleModel;  // A reference to model data in GPU memory
 
-  // This is the projection matrix from camera space to clip space.
-  // Remember that in clip space, only content within a unit cube centered at the origin is considered visible.
-  // Everything else is clipped - hence the name, "clip space".
+  // Transformation from camera space into clip space.
+  // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
-  // This is the matrix that maps from world space to camera space.
+  // Transformation from world space into camera space.
+  // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
   glm::mat4 viewMatrix{1.0f};
 
   std::vector<Instance> drawables;  // The set of things which will be drawn on redraw.
