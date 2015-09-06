@@ -2,11 +2,11 @@
 
 #include "shared.h"
 
-struct Model {
+struct Mesh {
   GLuint vbo = GL_NONE;  // References vertex attribute information loaded onto the GPU
   GLuint vao = GL_NONE;  // Describes the format and intent of the vertex attribute information
 
-  Model() {
+  Mesh() {
     // Create a GPU memory handle
     // This allows you to allocate and store things in GPU memory.
     // Initially, there is no memory associated with this handle.
@@ -20,20 +20,20 @@ struct Model {
     glGenVertexArrays(1, &this->vao);
   }
 
-  ~Model() {
+  ~Mesh() {
     glDeleteVertexArrays(1, &this->vao);
     glDeleteBuffers(1, &this->vbo);
   }
 
   /* Implement move semantics for this type. */
-  Model(Model&& other) {
+  Mesh(Mesh&& other) {
     this->vbo = other.vbo;
     other.vbo = GL_NONE;
 
     this->vao = other.vao;
     other.vao = GL_NONE;
   }
-  Model& operator=(Model&& other) {
+  Mesh& operator=(Mesh&& other) {
     if (this == &other) {
       return *this;
     }
@@ -55,4 +55,4 @@ struct Model {
 };
 
 
-Model loadTriangleModel();
+Mesh loadTriangleMesh();

@@ -7,9 +7,9 @@ struct Model;
 
 // Combines a shared model with an instance-specific reference frame
 struct Instance {
-  Model* model = nullptr;
+  Mesh* mesh = nullptr;
   glm::mat4 frame{1.0f};
 
-  Model const* GetModel() const { return this->model; }
+  Mesh const* GetMesh() const { return this->mesh; }
   glm::mat4 GetFrame() const { return this->frame; }
 };

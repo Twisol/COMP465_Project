@@ -29,10 +29,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->viewMatrix = glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, -20.0f));
 
   // Load our simplistic model into GPU memory and obtain a reference to it.
-  this->triangleModel = loadTriangleModel();
+  this->triangleMesh = loadTriangleMesh();
   {
     Instance instance;
-    instance.model = &this->triangleModel;
+    instance.mesh = &this->triangleMesh;
     // Transformation from model space into world space.
     // In other words, this describes the position, rotation, and scaling of the model relative to the world origin
     //
@@ -88,7 +88,7 @@ void App::OnRedraw() {
 
     // Bind the necessary draw state for this model
     // This state was pre-configured when the Model was created.
-    instance.GetModel()->BindVertexData();
+    instance.GetMesh()->BindVertexData();
     if (!assertShaderValid(this->shader_id)) {
       // TODO: Throw an exception instead so the environment is cleaned up properly.
       exit(1);

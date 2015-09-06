@@ -1,11 +1,11 @@
-#include "Model.h"
+#include "Mesh.h"
 
-Model loadTriangleModel() {
-  Model model;
+Mesh loadTriangleMesh() {
+  Mesh mesh;
 
   // Make the model's GL state active
-  glBindVertexArray(model.vao);
-  glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
+  glBindVertexArray(mesh.vao);
+  glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
 
   // Upload the model to GPU memory
   {
@@ -32,5 +32,5 @@ Model loadTriangleModel() {
   // The state and vertex information still exists - we can just bind model.vao to make it active again.
   glBindVertexArray(GL_NONE);
 
-  return model;
+  return mesh;
 }
