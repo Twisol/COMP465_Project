@@ -19,6 +19,7 @@ static GLFWwindow* setupGLFW(int width, int height, char const* title, GLFWerror
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
   // Create a window with the desired dimensions and title
   GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);

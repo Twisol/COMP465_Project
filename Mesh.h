@@ -5,6 +5,8 @@
 struct Mesh {
   GLuint vbo = GL_NONE;  // References vertex attribute information loaded onto the GPU
   GLuint vao = GL_NONE;  // Describes the format and intent of the vertex attribute information
+  GLenum primitiveType = GL_TRIANGLES;  // Describe the mapping between vertices and primitives
+  GLsizei primitiveCount = 0;  // The number of primitives in the mesh
 
   Mesh() {
     // Create a GPU memory handle
@@ -32,6 +34,9 @@ struct Mesh {
 
     this->vao = other.vao;
     other.vao = GL_NONE;
+
+    this->primitiveType = other.primitiveType;
+    this->primitiveCount = other.primitiveCount;
   }
   Mesh& operator=(Mesh&& other) {
     if (this == &other) {
@@ -46,13 +51,13 @@ struct Mesh {
     this->vao = other.vao;
     other.vao = GL_NONE;
 
-    return *this;
-  }
+    this->primitiveType = other.primitiveType;
+    this->primitiveCount = other.primitiveCount;
 
-  virtual void BindVertexData() const {
-    glBindVertexArray(this->vao);
+    return *this;
   }
 };
 
 
 Mesh loadTriangleMesh();
+Mesh loadSphereMesh();

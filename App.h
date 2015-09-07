@@ -40,7 +40,7 @@ public:
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
-  Mesh triangleMesh;  // A reference to vertex data in GPU memory
+  Mesh debugMesh;  // A mesh meant for testing and debugging.
 
   // Transformation from camera space into clip space.
   // This maps all visible content onto the volume of a unit cube centered at the origin.
