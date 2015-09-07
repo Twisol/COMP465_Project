@@ -26,10 +26,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Transformation from camera space into clip space.
   // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
   //
-  // This camera can only see objects between 1 unit and 101 units away from it,
+  // This camera can only see objects between 1 unit and 50001 units away from it,
   // with a 45-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
-  this->projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 101.0f);
+  this->projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
 
   // Transformation from world space into camera space.
   // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.

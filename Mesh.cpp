@@ -10,10 +10,10 @@ Mesh loadTriangleMesh() {
   // Upload the model to GPU memory
   {
     GLfloat vertices[(3+4)*3] = {
-        // position           color
-        -1.0f, -1.0f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,
-         0.0f,  1.0f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,
+        // position            color
+        -1.0f, -1.0f,  0.0f,   1.0f, 0.0f, 0.0f, 1.0f,
+         1.0f, -1.0f,  0.0f,   0.0f, 1.0f, 0.0f, 1.0f,
+         0.0f,  1.0f,  0.0f,   0.0f, 0.0f, 1.0f, 1.0f,
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -47,6 +47,8 @@ Mesh loadSphereMesh() {
   // Upload the model to GPU memory
   {
     GLfloat vertices[(3+4)*6*6] = {
+        // position            color
+
         // Front face
         -1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 0.0f, 1.0f,
         -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 0.0f, 1.0f,
