@@ -51,7 +51,8 @@ set(SOURCE_FILES
     App.cpp
     util/debug.cpp
     Mesh.cpp
-    Instance.h
+    Entity.h
+    Frame.h
 )
 
 # Create a build configuration header.

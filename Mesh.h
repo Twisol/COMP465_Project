@@ -27,6 +27,10 @@ struct Mesh {
     glDeleteBuffers(1, &this->vbo);
   }
 
+  /* Disable copy semantics for this type. */
+  Mesh(Mesh const&) = delete;
+  Mesh& operator=(Mesh const&) = delete;
+
   /* Implement move semantics for this type. */
   Mesh(Mesh&& other) {
     this->vbo = other.vbo;

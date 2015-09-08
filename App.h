@@ -2,8 +2,7 @@
 
 // Project shared header
 #include "shared.h"
-#include "Mesh.h"
-#include "Instance.h"
+#include "Entity.h"
 
 // Cross-platform GL context and window toolkit. Handles the boilerplate.
 #include <GLFW/glfw3.h>
@@ -38,6 +37,9 @@ public:
   virtual void OnRedraw();
 
 private:
+  void InstantiateOrbitingBodies();
+
+private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
   Mesh debugMesh;  // A mesh meant for testing and debugging.
@@ -50,5 +52,5 @@ private:
   // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
   glm::mat4 viewMatrix{1.0f};
 
-  std::vector<Instance> drawables;  // The set of things which will be drawn on redraw.
+  std::vector<std::unique_ptr<Entity>> entities;  // The set of all active entities in the simulation.
 };
