@@ -1,6 +1,7 @@
 #include "App.h"
 
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -103,6 +104,9 @@ int main(int /*argc*/, char** /*argv*/) {
 
       G_APP->OnTimeStep();
       G_APP->OnRedraw();
+
+      // Relinquish the rest of our timeslice to other programs on this CPU.
+      this_thread::yield();
     }
 
     // Clean up after ourselves

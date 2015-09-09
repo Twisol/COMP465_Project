@@ -73,9 +73,9 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Transformation from world space into camera space.
   // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
   this->viewMatrix = glm::lookAt(
-      glm::vec3{0.0f, 20000.0f, 0.0f},  // Position of the camera
+      glm::vec3{0.0f, 10000.0f, 20000.0f},  // Position of the camera
       glm::vec3{0.0f, 0.0f, 0.0f},  // Point to look towards
-      glm::vec3{0.0f, 0.0f, -1.0f}  // Direction towards which the top of the camera faces
+      glm::vec3{0.0f, 1.0f, -1.0f}  // Direction towards which the top of the camera faces
   );
 
   // Load our simplistic model into GPU memory and obtain a reference to it.
