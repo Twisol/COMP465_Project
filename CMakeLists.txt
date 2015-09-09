@@ -37,19 +37,18 @@ if(${APPLE})
 endif()
 
 # Tell GLEW we plan to link with it statically.
-add_definitions(-DGLEW_STATIC)
+        add_definitions(-DGLEW_STATIC)
 
 
 ## Project configuration
-set(COMP465_Project_VERSION 0.0.1)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic")
-set(SOURCE_FILES
-    shared.h
-    main.cpp
-    shaders.cpp
-    App.cpp
-    util/debug.cpp
+        set(COMP465_Project_VERSION 0.0.1)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -pedantic")
+        set(SOURCE_FILES
+        shared.h
+        main.cpp
+        shaders.cpp
+        App.cpp
+        util/debug.cpp
     Mesh.cpp
     Entity.h
     Frame.h

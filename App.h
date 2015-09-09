@@ -11,7 +11,6 @@
 
 #include <vector>
 
-
 // An interface for top-level render loop hooks.
 class IComponent {
 public:
