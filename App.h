@@ -21,7 +21,7 @@ public:
   virtual void OnReleaseContext() {}
 
   virtual void OnKeyEvent(int /*key*/, int /*action*/) {}
-  virtual void OnTimeStep() {}
+  virtual void OnTimeStep(double /*delta*/) {}
   virtual void OnRedraw() {}
 };
 
@@ -33,7 +33,7 @@ public:
   virtual void OnReleaseContext();
 
   virtual void OnKeyEvent(int key, int action);
-  virtual void OnTimeStep();
+  virtual void OnTimeStep(double delta);
   virtual void OnRedraw();
 
 private:

@@ -114,7 +114,7 @@ void App::OnKeyEvent(int key, int action) {
 }
 
 // Updates the application state.
-void App::OnTimeStep() {
+void App::OnTimeStep(double /*delta*/) {
   //...
 }
 

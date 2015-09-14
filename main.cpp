@@ -99,14 +99,37 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Game Loop pattern
     // More information at http://gameprogrammingpatterns.com/game-loop.html
-    while (!glfwWindowShouldClose(window)) {
-      glfwPollEvents();
+    // This particular game loop is modeled after one at http://gafferongames.com/game-physics/fix-your-timestep/
+    {
+      double const dt = 0.01;  // Fixed timestep for simulation evolution
 
-      G_APP->OnTimeStep();
-      G_APP->OnRedraw();
+      // Time elapsed (in seconds) since GLFW startup
+      double currentTime = glfwGetTime();
+      // Accumulates time as time passes. The simulator consumes this in discrete time quanta.
+      double accumulator = 0.0;
 
-      // Relinquish the rest of our timeslice to other programs on this CPU.
-      this_thread::yield();
+      while (!glfwWindowShouldClose(window)) {
+        // Accumulate the period of time which has passed since the last frame.
+        double newTime = glfwGetTime();
+        accumulator += newTime - currentTime;
+        currentTime = newTime;
+
+        // Run the simulation for as many time quanta as possible.
+        while (accumulator >= dt) {
+          accumulator -= dt;
+          G_APP->OnTimeStep(dt);
+        }
+
+        // Note that some time may have been left unsimulated at this point.
+        // We could do some fancy interpolation/extrapolation with the remainder,
+        // but that's not terribly important here.
+        G_APP->OnRedraw();
+
+        glfwPollEvents();
+
+        // Relinquish the rest of our timeslice to other programs on this CPU.
+        this_thread::yield();
+      }
     }
 
     // Clean up after ourselves
