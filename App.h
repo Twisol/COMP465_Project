@@ -11,30 +11,15 @@
 
 #include <vector>
 
-
-// An interface for top-level render loop hooks.
-class IComponent {
-public:
-  virtual ~IComponent() {}
-
-  virtual void OnAcquireContext(GLFWwindow* /*window*/) {}
-  virtual void OnReleaseContext() {}
-
-  virtual void OnKeyEvent(int /*key*/, int /*action*/) {}
-  virtual void OnTimeStep(double /*delta*/) {}
-  virtual void OnRedraw() {}
-};
-
-
 // A structure representing top-level information about the application.
-class App : public IComponent {
+class App  {
 public:
-  virtual void OnAcquireContext(GLFWwindow* window);
-  virtual void OnReleaseContext();
+  void OnAcquireContext(GLFWwindow* window);
+  void OnReleaseContext();
 
-  virtual void OnKeyEvent(int key, int action);
-  virtual void OnTimeStep(double delta);
-  virtual void OnRedraw();
+  void OnKeyEvent(int key, int action);
+  void OnTimeStep(double delta);
+  void OnRedraw();
 
 private:
   void InstantiateOrbitingBodies();
@@ -52,5 +37,10 @@ private:
   // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
   glm::mat4 viewMatrix{1.0f};
 
-  std::vector<std::unique_ptr<Entity>> entities;  // The set of all active entities in the simulation.
+  // Entities
+  std::unique_ptr<Entity> ruber = nullptr;
+  std::unique_ptr<Entity> unum = nullptr;
+  std::unique_ptr<Entity> duo = nullptr;
+  std::unique_ptr<Entity> primus = nullptr;
+  std::unique_ptr<Entity> secundus = nullptr;
 };

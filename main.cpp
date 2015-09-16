@@ -6,6 +6,13 @@
 using namespace std;
 
 
+#define ACE_SPEED ((double)1.0)
+#define PILOT_SPEED ((double)2.5)
+#define TRAINEE_SPEED ((double)6.25)
+#define DEBUG_SPEED ((double)12.5)
+
+double const WORLD_SPEED = DEBUG_SPEED;
+
 static GLFWwindow* setupGLFW(int width, int height, char const* title, GLFWerrorfun error_callback) {
   glfwSetErrorCallback(error_callback);
 
@@ -53,7 +60,7 @@ static bool setupGLEW() {
 
 
 // Keep a reference to the active app so that GLFW callbacks can access it.
-static IComponent* G_APP = nullptr;
+static App* G_APP = nullptr;
 
 // Processes ASCII keyboard input.
 void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
@@ -110,8 +117,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
       while (!glfwWindowShouldClose(window)) {
         // Accumulate the period of time which has passed since the last frame.
+        // Apply a scalar factor to the difference to decouple the simulation's clock speed
+        //   from the real world's clock speed.
         double newTime = glfwGetTime();
-        accumulator += newTime - currentTime;
+        accumulator += WORLD_SPEED * (newTime - currentTime);
         currentTime = newTime;
 
         // Run the simulation for as many time quanta as possible.

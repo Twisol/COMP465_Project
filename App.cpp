@@ -2,49 +2,43 @@
 #include "shaders.h"
 
 #include <iostream>
+#include <cmath>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
-
 void App::InstantiateOrbitingBodies() {
   // Ruber
-  std::unique_ptr<Entity> ruber{new Entity("Ruber")};
-  ruber->mesh = &this->debugMesh;
-  ruber->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f});
-  ruber->frame.reset(new Frame{});
+  this->ruber.reset(new Entity("Ruber"));
+  this->ruber->mesh = &this->debugMesh;
+  this->ruber->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f});
+  this->ruber->frame.reset(new Frame{});
 
   // Unum
-  std::unique_ptr<Entity> unum{new Entity("Unum")};
-  unum->mesh = &this->debugMesh;
-  unum->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f});
-  unum->frame.reset(new Frame{ruber->frame.get(), glm::vec3{4000.0f, 0.0f, 0.0f}});
+  this->unum.reset(new Entity("Unum"));
+  this->unum->mesh = &this->debugMesh;
+  this->unum->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f});
+  this->unum->frame.reset(new Frame{ruber->frame.get(), glm::vec3{4000.0f, 0.0f, 0.0f}});
 
   // Duo
-  std::unique_ptr<Entity> duo{new Entity("Duo")};
-  duo->mesh = &this->debugMesh;
-  duo->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f});
-  duo->frame.reset(new Frame{ruber->frame.get(), glm::vec3{-9000.0f, 0.0f, 0.0f}});
+  this->duo.reset(new Entity("Duo"));
+  this->duo->mesh = &this->debugMesh;
+  this->duo->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f});
+  this->duo->frame.reset(new Frame{ruber->frame.get(), glm::vec3{-9000.0f, 0.0f, 0.0f}});
 
   // Primus
-  std::unique_ptr<Entity> primus{new Entity("Primus")};
-  primus->mesh = &this->debugMesh;
-  primus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f});
-  primus->frame.reset(new Frame{duo->frame.get(), glm::vec3{900.0f, 0.0f, 0.0f}});
+  this->primus.reset(new Entity("Primus"));
+  this->primus->mesh = &this->debugMesh;
+  this->primus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f});
+  this->primus->frame.reset(new Frame{duo->frame.get(), glm::vec3{900.0f, 0.0f, 0.0f}});
 
   // Secundus
-  std::unique_ptr<Entity> secundus{new Entity("Secundus")};
-  secundus->mesh = &this->debugMesh;
-  secundus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f});
-  secundus->frame.reset(new Frame{duo->frame.get(), glm::vec3{1750.0f, 0.0f, 0.0f}});
-
-  this->entities.push_back(std::move(ruber));
-  this->entities.push_back(std::move(unum));
-  this->entities.push_back(std::move(duo));
-  this->entities.push_back(std::move(primus));
-  this->entities.push_back(std::move(secundus));
+  this->secundus.reset(new Entity("Secundus"));
+  this->secundus->mesh = &this->debugMesh;
+  this->secundus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f});
+  this->secundus->frame.reset(new Frame{duo->frame.get(), glm::vec3{1750.0f, 0.0f, 0.0f}});
 }
 
 
@@ -127,7 +121,15 @@ void App::OnRedraw() {
   glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
 
   // Iterate over all entities.
-  for (auto& entity : this->entities) {
+  auto entities = std::vector<Entity const*> {
+    this->ruber.get(),
+    this->unum.get(),
+    this->duo.get(),
+    this->primus.get(),
+    this->secundus.get(),
+  };
+
+  for (auto entity : entities) {
     // If the entity is unrenderable in some way, skip it.
     if (!(entity->mesh && entity->frame)) {
       continue;
