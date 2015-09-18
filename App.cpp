@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,35 +11,29 @@
 using namespace std;
 
 void App::InstantiateOrbitingBodies() {
-  // Ruber
-  this->ruber.reset(new Entity("Ruber"));
-  this->ruber->mesh = &this->debugMesh;
-  this->ruber->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f});
-  this->ruber->frame.reset(new Frame{});
+  this->positions.insert(std::make_pair("Ruber", Position{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f}));
+  this->models.insert(std::make_pair("Ruber", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
+  this->renderables.push_back("Ruber");
 
-  // Unum
-  this->unum.reset(new Entity("Unum"));
-  this->unum->mesh = &this->debugMesh;
-  this->unum->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f});
-  this->unum->frame.reset(new Frame{ruber->frame.get(), glm::vec3{4000.0f, 0.0f, 0.0f}});
+  this->positions.insert(std::make_pair("Unum", Position{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
+  this->models.insert(std::make_pair("Unum", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
+  this->orbiters.push_back("Unum");
+  this->renderables.push_back("Unum");
 
-  // Duo
-  this->duo.reset(new Entity("Duo"));
-  this->duo->mesh = &this->debugMesh;
-  this->duo->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f});
-  this->duo->frame.reset(new Frame{ruber->frame.get(), glm::vec3{-9000.0f, 0.0f, 0.0f}});
+  this->positions.insert(std::make_pair("Duo", Position{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
+  this->models.insert(std::make_pair("Duo", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f})}));
+  this->orbiters.push_back("Duo");
+  this->renderables.push_back("Duo");
 
-  // Primus
-  this->primus.reset(new Entity("Primus"));
-  this->primus->mesh = &this->debugMesh;
-  this->primus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f});
-  this->primus->frame.reset(new Frame{duo->frame.get(), glm::vec3{900.0f, 0.0f, 0.0f}});
+  this->positions.insert(std::make_pair("Primus", Position{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
+  this->models.insert(std::make_pair("Primus", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
+  this->orbiters.push_back("Primus");
+  this->renderables.push_back("Primus");
 
-  // Secundus
-  this->secundus.reset(new Entity("Secundus"));
-  this->secundus->mesh = &this->debugMesh;
-  this->secundus->transformation = glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f});
-  this->secundus->frame.reset(new Frame{duo->frame.get(), glm::vec3{1750.0f, 0.0f, 0.0f}});
+  this->positions.insert(std::make_pair("Secundus", Position{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
+  this->models.insert(std::make_pair("Secundus", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f})}));
+  this->orbiters.push_back("Secundus");
+  this->renderables.push_back("Secundus");
 }
 
 
@@ -109,7 +104,9 @@ void App::OnKeyEvent(int key, int action) {
 
 // Updates the application state.
 void App::OnTimeStep(double /*delta*/) {
-  //...
+  for (auto orbiter : orbiters) {
+    // ...
+  }
 }
 
 // Renders a frame.
@@ -120,27 +117,22 @@ void App::OnRedraw() {
   // Compute the cumulative transformation from the world basis to clip space.
   glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
 
-  // Iterate over all entities.
-  auto entities = std::vector<Entity const*> {
-    this->ruber.get(),
-    this->unum.get(),
-    this->duo.get(),
-    this->primus.get(),
-    this->secundus.get(),
-  };
-
-  for (auto entity : entities) {
+  for (auto entity : this->renderables) {
     // If the entity is unrenderable in some way, skip it.
-    if (!(entity->mesh && entity->frame)) {
+    if (this->positions.find(entity) == this->positions.end()
+      || this->models.find(entity) == this->models.end()) {
       continue;
     }
 
+    Position& position = this->positions.at(entity);
+    Model& model = this->models.at(entity);
+
     // Compute the cumulative transformation from the entity to the world basis.
-    glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, entity->frame->translation);
-    Frame const* parent = entity->frame->parent;
-    while (parent) {
-      worldTransform = glm::translate(worldTransform, parent->translation);
-      parent = parent->parent;
+    glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, position.translation);
+    Position const* current = &position;
+    while (models.find(current->parent) != models.end()) {
+      current = &this->positions.at(current->parent);
+      worldTransform = glm::translate(worldTransform, current->translation);
     }
 
     // Set up the shader for this instance
@@ -153,7 +145,7 @@ void App::OnRedraw() {
 
       // This uniform describes the instance's reference frame,
       GLint location = glGetUniformLocation(this->shader_id, "transform");
-      glm::mat4 frame = clipTransform * worldTransform * entity->transformation;
+      glm::mat4 frame = clipTransform * worldTransform * model.transformation;
       glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(frame));
     }
 
@@ -161,7 +153,7 @@ void App::OnRedraw() {
     {
       // Bind the necessary draw state for this model
       // This state was pre-configured when the Mesh was created.
-      auto& mesh = entity->mesh;
+      auto& mesh = model.mesh;
       glBindVertexArray(mesh->vao);
 
       // Confirm that the shader has everything it needs to operate.
