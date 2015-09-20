@@ -50,8 +50,6 @@ endif()
         App.cpp
         util/debug.cpp
     Mesh.cpp
-    Entity.h
-    Frame.h
 )
 
 # Create a build configuration header.

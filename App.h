@@ -2,38 +2,53 @@
 
 // Project shared header
 #include "shared.h"
-#include "Entity.h"
+
+#include "Mesh.h"
 
 // Cross-platform GL context and window toolkit. Handles the boilerplate.
 #include <GLFW/glfw3.h>
-// GLM forward declarations
-#include <glm/fwd.hpp>
+// GLM math objects
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
+#include <map>
 #include <vector>
+#include <string>
 
-// An interface for top-level render loop hooks.
-class IComponent {
-public:
-  virtual ~IComponent() {}
+struct Position {
+  // The parent frame.
+  std::string parent = "::origin";
 
-  virtual void OnAcquireContext(GLFWwindow* /*window*/) {}
-  virtual void OnReleaseContext() {}
+  // Translation relative to the parent frame.
+  glm::vec3 translation{0.0f};
 
-  virtual void OnKeyEvent(int /*key*/, int /*action*/) {}
-  virtual void OnTimeStep() {}
-  virtual void OnRedraw() {}
+  // Angular velocity relative to the parent.
+  double angular_velocity = 0.0;
+
+
+  Position(std::string parent, glm::vec3&& translation, double angular_velocity)
+    : parent{parent}, translation{translation}, angular_velocity{angular_velocity}
+  {}
 };
 
+struct Model {
+  Mesh const* mesh = nullptr;
+  glm::mat4 transformation{1.0f};
+
+  Model(Mesh const* mesh, glm::mat4&& transformation)
+    : mesh{mesh}, transformation{transformation}
+  {}
+};
 
 // A structure representing top-level information about the application.
-class App : public IComponent {
+class App  {
 public:
-  virtual void OnAcquireContext(GLFWwindow* window);
-  virtual void OnReleaseContext();
+  void OnAcquireContext(GLFWwindow* window);
+  void OnReleaseContext();
 
-  virtual void OnKeyEvent(int key, int action);
-  virtual void OnTimeStep();
-  virtual void OnRedraw();
+  void OnKeyEvent(int key, int action);
+  void OnTimeStep(double delta);
+  void OnRedraw();
 
 private:
   void InstantiateOrbitingBodies();
@@ -51,5 +66,11 @@ private:
   // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
   glm::mat4 viewMatrix{1.0f};
 
-  std::vector<std::unique_ptr<Entity>> entities;  // The set of all active entities in the simulation.
+  // Entity component tables
+  std::map<std::string, Position> positions;
+  std::map<std::string, Model> models;
+
+  // System entity indices
+  std::vector<std::string> orbiters;
+  std::vector<std::string> renderables;
 };
