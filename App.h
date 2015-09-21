@@ -30,7 +30,7 @@ struct PositionComponent {
   double angular_velocity = 0.0;
 
 
-  PositionComponent(std::string parent, glm::vec3&& translation, double angular_velocity)
+  PositionComponent(std::string parent, glm::vec3 const& translation, double angular_velocity)
     : parent{parent}, translation{translation}, angular_velocity{angular_velocity}
   {}
 };
@@ -40,7 +40,7 @@ struct ModelComponent {
   glm::mat4 transformation{1.0f};
 
 
-  ModelComponent(Mesh const* mesh, glm::mat4&& transformation)
+  ModelComponent(Mesh const* mesh, glm::mat4 const& transformation)
     : mesh{mesh}, transformation{transformation}
   {}
 };

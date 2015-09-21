@@ -11,7 +11,7 @@ using namespace std;
 #define PILOT_SPEED ((double)2.5)
 #define TRAINEE_SPEED ((double)6.25)
 #define DEBUG_SPEED ((double)12.5)
-#define SUPER_DEBUG_SPEED ((double) 50.0)
+#define SUPER_DEBUG_SPEED ((double)50.0)
 
 // Coupling factor between game time and real time.
 // This is the number of "game seconds" per "real seconds",
@@ -113,7 +113,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // More information at http://gameprogrammingpatterns.com/game-loop.html
     // This particular game loop is modeled after one at http://gafferongames.com/game-physics/fix-your-timestep/
     {
-      double const dt = 0.01;  // Fixed timestep for simulation evolution
+      double const dt = 0.05;  // Fixed timestep for simulation evolution
 
       // Time elapsed (in seconds) since GLFW startup
       double currentTime = glfwGetTime();

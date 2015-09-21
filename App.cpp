@@ -44,10 +44,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
   // Instantiate the Ruber system orbiting bodies.
   {
-    this->positions.insert(std::make_pair("Ruber", PositionComponent{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f}));
+    this->positions.insert(std::make_pair("Ruber", PositionComponent{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0}));
     this->models.insert(std::make_pair("Ruber", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
 
-    this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber",glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
+    this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
     this->models.insert(std::make_pair("Unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
 
     this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
@@ -91,7 +91,6 @@ void App::OnKeyEvent(int key, int action) {
 
 // Updates the application state.
 void App::OnTimeStep(double /*delta*/) {
-  
 }
 
 // Renders a frame.
@@ -103,18 +102,18 @@ void App::OnRedraw() {
   glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
 
   for (auto& entry : this->models) {
-    auto& entity = entry.first;
+    auto& entity_name = entry.first;
 
     // Only render things which are positioned in the game world
-    if (this->positions.find(entity) == this->positions.end()) {
+    if (this->positions.find(entity_name) == this->positions.end()) {
       continue;
     }
 
-    PositionComponent& position = this->positions.at(entity);
+    PositionComponent& position = this->positions.at(entity_name);
     ModelComponent& model = entry.second;
 
     // Compute the cumulative transformation from the entity to the world basis.
-    glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, position.translation) * glm::rotate(glm::mat4{1.0f}, (float)position.rotation_angle, glm::vec3{0.0f, 1.0f, 0.0f});
+    glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, position.translation);
     PositionComponent const* current = &position;
     while (models.find(current->parent) != models.end()) {
       current = &this->positions.at(current->parent);
@@ -130,8 +129,12 @@ void App::OnRedraw() {
       // Properties specific to each instance may include its position, animation step, etc.
 
       // This uniform describes the instance's reference frame,
+      glm::mat4 frame =
+          clipTransform
+        * worldTransform
+        * glm::rotate(glm::mat4{1.0f}, (float)position.rotation_angle, glm::vec3{0.0f, 1.0f, 0.0f})
+        * model.transformation;
       GLint location = glGetUniformLocation(this->shader_id, "transform");
-      glm::mat4 frame = clipTransform * worldTransform * model.transformation;
       glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(frame));
     }
 
