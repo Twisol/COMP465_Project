@@ -11,7 +11,7 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -69,6 +69,6 @@ private:
   glm::mat4 viewMatrix{1.0f};
 
   // Entity component tables
-  std::map<std::string, PositionComponent> positions;
-  std::map<std::string, ModelComponent> models;
+  std::unordered_map<std::string, PositionComponent> positions;
+  std::unordered_map<std::string, ModelComponent> models;
 };
