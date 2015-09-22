@@ -94,7 +94,7 @@ void App::OnTimeStep(double delta) {
   for (auto& entry : this->positions) {
     PositionComponent& position = entry.second;
 
-    auto&& rotation = glm::rotate(
+    auto const& rotation = glm::rotate(
       glm::mat4{1.0f},
       (float)(position.angular_velocity * delta),
       glm::vec3{0.0f, 1.0f, 0.0f}
