@@ -113,7 +113,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // More information at http://gameprogrammingpatterns.com/game-loop.html
     // This particular game loop is modeled after one at http://gafferongames.com/game-physics/fix-your-timestep/
     {
-      double const dt = 0.05;  // Fixed timestep for simulation evolution
+      double const dt = 0.01;  // Fixed timestep for simulation evolution
 
       // Time elapsed (in seconds) since GLFW startup
       double currentTime = glfwGetTime();
