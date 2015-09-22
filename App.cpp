@@ -90,7 +90,19 @@ void App::OnKeyEvent(int key, int action) {
 }
 
 // Updates the application state.
-void App::OnTimeStep(double /*delta*/) {
+void App::OnTimeStep(double delta) {
+  for (auto& entry : this->positions) {
+    PositionComponent& position = entry.second;
+
+    auto&& rotation = glm::rotate(
+      glm::mat4{1.0f},
+      (float)(position.angular_velocity * delta),
+      glm::vec3{0.0f, 1.0f, 0.0f}
+    );
+
+    position.rotation_angle += position.angular_velocity * delta;
+    position.translation = glm::vec3{rotation * glm::vec4{position.translation, 1.0f}};
+  }
 }
 
 // Renders a frame.
