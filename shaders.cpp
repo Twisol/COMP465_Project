@@ -94,6 +94,8 @@ GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
       fprintf(stderr, "Vertex shader too long to load from disk.\n");
       return GL_NONE;
     }
+
+    fclose(f);
   }
 
   char fs[256*1024];  // shader size up to 256 KiB
@@ -110,6 +112,8 @@ GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
       fprintf(stderr, "Fragment shader too long to load from disk.\n");
       return GL_NONE;
     }
+
+    fclose(f);
   }
 
   return create_program(vs, vs_length, fs, fs_length);

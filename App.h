@@ -11,31 +11,36 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
-struct Position {
+struct PositionComponent {
   // The parent frame.
   std::string parent = "::origin";
 
   // Translation relative to the parent frame.
   glm::vec3 translation{0.0f};
 
+  // Rotation (in radians) about the Y-axis relative to the entity's own frame
+  double rotation_angle = 0.0f;
+
   // Angular velocity relative to the parent.
+  // TODO: This belongs in a PhysicsComponent
   double angular_velocity = 0.0;
 
 
-  Position(std::string parent, glm::vec3&& translation, double angular_velocity)
+  PositionComponent(std::string parent, glm::vec3 const& translation, double angular_velocity)
     : parent{parent}, translation{translation}, angular_velocity{angular_velocity}
   {}
 };
 
-struct Model {
+struct ModelComponent {
   Mesh const* mesh = nullptr;
   glm::mat4 transformation{1.0f};
 
-  Model(Mesh const* mesh, glm::mat4&& transformation)
+
+  ModelComponent(Mesh const* mesh, glm::mat4 const& transformation)
     : mesh{mesh}, transformation{transformation}
   {}
 };
@@ -51,9 +56,6 @@ public:
   void OnRedraw();
 
 private:
-  void InstantiateOrbitingBodies();
-
-private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
   Mesh debugMesh;  // A mesh meant for testing and debugging.
@@ -67,10 +69,6 @@ private:
   glm::mat4 viewMatrix{1.0f};
 
   // Entity component tables
-  std::map<std::string, Position> positions;
-  std::map<std::string, Model> models;
-
-  // System entity indices
-  std::vector<std::string> orbiters;
-  std::vector<std::string> renderables;
+  std::unordered_map<std::string, PositionComponent> positions;
+  std::unordered_map<std::string, ModelComponent> models;
 };

@@ -11,7 +11,7 @@ using namespace std;
 #define PILOT_SPEED ((double)2.5)
 #define TRAINEE_SPEED ((double)6.25)
 #define DEBUG_SPEED ((double)12.5)
-#define SUPER_DEBUG_SPEED ((double) 50.0)
+#define SUPER_DEBUG_SPEED ((double)50.0)
 
 // Coupling factor between game time and real time.
 // This is the number of "game seconds" per "real seconds",

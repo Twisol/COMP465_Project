@@ -3,39 +3,11 @@
 
 #include <iostream>
 #include <cmath>
-#include <vector>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
-
-void App::InstantiateOrbitingBodies() {
-  this->positions.insert(std::make_pair("Ruber", Position{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f}));
-  this->models.insert(std::make_pair("Ruber", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
-  this->renderables.push_back("Ruber");
-
-  this->positions.insert(std::make_pair("Unum", Position{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-  this->models.insert(std::make_pair("Unum", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
-  this->orbiters.push_back("Unum");
-  this->renderables.push_back("Unum");
-
-  this->positions.insert(std::make_pair("Duo", Position{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-  this->models.insert(std::make_pair("Duo", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f})}));
-  this->orbiters.push_back("Duo");
-  this->renderables.push_back("Duo");
-
-  this->positions.insert(std::make_pair("Primus", Position{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-  this->models.insert(std::make_pair("Primus", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
-  this->orbiters.push_back("Primus");
-  this->renderables.push_back("Primus");
-
-  this->positions.insert(std::make_pair("Secundus", Position{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-  this->models.insert(std::make_pair("Secundus", Model{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f})}));
-  this->orbiters.push_back("Secundus");
-  this->renderables.push_back("Secundus");
-}
-
 
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
@@ -71,7 +43,22 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->debugMesh = loadSphereMesh();
 
   // Instantiate the Ruber system orbiting bodies.
-  this->InstantiateOrbitingBodies();
+  {
+    this->positions.insert(std::make_pair("Ruber", PositionComponent{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0}));
+    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
+
+    this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
+    this->models.insert(std::make_pair("Unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
+
+    this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
+    this->models.insert(std::make_pair("Duo", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f})}));
+
+    this->positions.insert(std::make_pair("Primus", PositionComponent{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
+    this->models.insert(std::make_pair("Primus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
+
+    this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
+    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f})}));
+  }
 
   // Prevent rendering of fragments which lie behind other fragments
   glEnable(GL_DEPTH_TEST);
@@ -103,9 +90,18 @@ void App::OnKeyEvent(int key, int action) {
 }
 
 // Updates the application state.
-void App::OnTimeStep(double /*delta*/) {
-  for (auto orbiter : orbiters) {
-    // ...
+void App::OnTimeStep(double delta) {
+  for (auto& entry : this->positions) {
+    PositionComponent& position = entry.second;
+
+    auto const& rotation = glm::rotate(
+      glm::mat4{1.0f},
+      (float)(position.angular_velocity * delta),
+      glm::vec3{0.0f, 1.0f, 0.0f}
+    );
+
+    position.rotation_angle += position.angular_velocity * delta;
+    position.translation = glm::vec3{rotation * glm::vec4{position.translation, 1.0f}};
   }
 }
 
@@ -117,22 +113,23 @@ void App::OnRedraw() {
   // Compute the cumulative transformation from the world basis to clip space.
   glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
 
-  for (auto entity : this->renderables) {
-    // If the entity is unrenderable in some way, skip it.
-    if (this->positions.find(entity) == this->positions.end()
-      || this->models.find(entity) == this->models.end()) {
+  for (auto& entry : this->models) {
+    auto& entity_name = entry.first;
+
+    // Only render things which are positioned in the game world
+    if (this->positions.find(entity_name) == this->positions.end()) {
       continue;
     }
 
-    Position& position = this->positions.at(entity);
-    Model& model = this->models.at(entity);
+    PositionComponent& position = this->positions.at(entity_name);
+    ModelComponent& model = entry.second;
 
     // Compute the cumulative transformation from the entity to the world basis.
     glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, position.translation);
-    Position const* current = &position;
+    PositionComponent const* current = &position;
     while (models.find(current->parent) != models.end()) {
       current = &this->positions.at(current->parent);
-      worldTransform = glm::translate(worldTransform, current->translation);
+      worldTransform = glm::translate(glm::mat4{1.0f}, current->translation) * worldTransform;
     }
 
     // Set up the shader for this instance
@@ -144,8 +141,12 @@ void App::OnRedraw() {
       // Properties specific to each instance may include its position, animation step, etc.
 
       // This uniform describes the instance's reference frame,
+      glm::mat4 frame =
+          clipTransform
+        * worldTransform
+        * glm::rotate(glm::mat4{1.0f}, (float)position.rotation_angle, glm::vec3{0.0f, 1.0f, 0.0f})
+        * model.transformation;
       GLint location = glGetUniformLocation(this->shader_id, "transform");
-      glm::mat4 frame = clipTransform * worldTransform * model.transformation;
       glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(frame));
     }
 
