@@ -65,14 +65,12 @@ private:
   Mesh duoMesh;
   Mesh primusMesh;
   Mesh secundusMesh;
-    
+
   // Transformation from camera space into clip space.
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
-  // Transformation from world space into camera space.
-  // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
-  glm::mat4 viewMatrix{1.0f};
+  int active_camera = 0;
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;

@@ -8,6 +8,8 @@
 
 using namespace std;
 
+static std::string const CAMERAS[] = {"camera:front", "camera:top"};
+
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
     << " with OpenGL version " << glGetString(GL_VERSION)
@@ -30,15 +32,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
   this->projectionMatrix = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
 
-  // Transformation from world space into camera space.
-  // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
-  this->viewMatrix = glm::lookAt(
-      glm::vec3{0.0f, 10000.0f, 20000.0f},  // Position of the camera
-      glm::vec3{0.0f, 0.0f, 0.0f},  // Point to look towards
-      glm::vec3{0.0f, 1.0f, -1.0f}  // Direction towards which the top of the camera faces
-  );
-
-  // Load our simplistic model into GPU memory and obtain a reference to it.
+  // Load our models into GPU memory
   this->debugMesh = loadMeshFromFile("models/debug.tri");
   this->ruberMesh = loadMeshFromFile("models/Ruber.tri");
   this->unumMesh = loadMeshFromFile("models/Unum.tri");
@@ -62,6 +56,12 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
     this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
+  }
+
+  // Create some cameras
+  {
+    this->positions.insert(std::make_pair("camera:front", PositionComponent{"::origin", glm::vec3{0.0f, 10000.0f, 20000.0f}, 0.0f}));
+    this->positions.insert(std::make_pair("camera:top", PositionComponent{"::origin", glm::vec3{0.0f, 20000.0f, 0.0f}, 0.0f}));
   }
 
   // Prevent rendering of fragments which lie behind other fragments
@@ -90,6 +90,9 @@ void App::OnKeyEvent(int key, int action) {
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
+  if (action == GLFW_PRESS && key == GLFW_KEY_V) {
+    this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
+  }
   //...
 }
 
@@ -115,7 +118,12 @@ void App::OnRedraw() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Compute the cumulative transformation from the world basis to clip space.
-  glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
+  glm::mat4 viewMatrix = glm::lookAt(
+    this->positions.at(CAMERAS[this->active_camera]).translation, // Position of the camera
+    glm::vec3{0.0f, 0.0f, 0.0f},  // Point to look towards
+    glm::vec3{0.0f, 1.0f, -1.0f}  // Direction towards which the top of the camera faces
+  );
+  glm::mat4 clipTransform = this->projectionMatrix * viewMatrix;
 
   for (auto& entry : this->models) {
     auto& entity_name = entry.first;
