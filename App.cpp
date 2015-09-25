@@ -2,7 +2,6 @@
 #include "shaders.h"
 
 #include <iostream>
-#include <cmath>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -40,7 +39,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   );
 
   // Load our simplistic model into GPU memory and obtain a reference to it.
-  this->debugMesh = loadSphereMesh();
+  this->debugMesh = loadMeshFromFile("models/debug.tri");
 
   // Instantiate the Ruber system orbiting bodies.
   {

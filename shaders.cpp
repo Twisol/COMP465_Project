@@ -78,7 +78,7 @@ GLuint create_program(char const* vs, size_t vs_length, char const* fs, size_t f
   return program;
 }
 
-// Compiles and links a GL shader progran using shaders loaded from the filesystem.
+// Compiles and links a GL shader program using shaders loaded from the filesystem.
 GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
   char vs[256*1024];  // shader size up to 256 KiB
   size_t vs_length = 0;

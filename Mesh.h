@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shared.h"
+#include <vector>
 
 struct Mesh {
   GLuint vbo = GL_NONE;  // References vertex attribute information loaded onto the GPU
@@ -65,3 +66,6 @@ struct Mesh {
 
 Mesh loadTriangleMesh();
 Mesh loadSphereMesh();
+
+// Loads .TRI mesh file from the filesystem.
+Mesh loadMeshFromFile(char const* tri_path);
