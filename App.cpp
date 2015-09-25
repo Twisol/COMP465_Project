@@ -40,23 +40,28 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
   // Load our simplistic model into GPU memory and obtain a reference to it.
   this->debugMesh = loadMeshFromFile("models/debug.tri");
+  this->ruberMesh = loadMeshFromFile("models/Ruber.tri");
+  this->unumMesh = loadMeshFromFile("models/Unum.tri");
+  this->duoMesh = loadMeshFromFile("models/Duo.tri");
+  this->primusMesh = loadMeshFromFile("models/Primus.tri");
+  this->secundusMesh = loadMeshFromFile("models/Secundus.tri");
 
   // Instantiate the Ruber system orbiting bodies.
   {
     this->positions.insert(std::make_pair("Ruber", PositionComponent{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0}));
-    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
+    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->ruberMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
+    this->models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Duo", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f})}));
+    this->models.insert(std::make_pair("Duo", ModelComponent{&this->duoMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("Primus", PositionComponent{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Primus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
+    this->models.insert(std::make_pair("Primus", ModelComponent{&this->primusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f})}));
+    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
   }
 
   // Prevent rendering of fragments which lie behind other fragments

@@ -58,8 +58,14 @@ public:
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
-  Mesh debugMesh;  // A mesh meant for testing and debugging.
 
+  Mesh debugMesh;  // A mesh meant for testing and debugging.
+  Mesh ruberMesh;
+  Mesh unumMesh;
+  Mesh duoMesh;
+  Mesh primusMesh;
+  Mesh secundusMesh;
+    
   // Transformation from camera space into clip space.
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
