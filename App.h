@@ -45,6 +45,18 @@ struct ModelComponent {
   {}
 };
 
+struct CameraComponent {
+  // Point to look at
+  glm::vec3 at{0.0f, 0.0f, 0.0f};
+  // Where the top of the camera is pointing
+  glm::vec3 up{0.0f, 0.0f, 0.0f};
+
+
+  CameraComponent(glm::vec3 at, glm::vec3 up)
+    : at(at), up(up)
+  {}
+};
+
 
 // A structure representing top-level information about the application.
 class App  {
@@ -76,6 +88,7 @@ private:
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
+  // Index of the active camera in our ordered list of selectable cameras
   int active_camera = 0;
 
   // Coupling factor between game time and real time.
@@ -86,4 +99,5 @@ private:
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
   std::unordered_map<std::string, ModelComponent> models;
+  std::unordered_map<std::string, CameraComponent> cameras;
 };
