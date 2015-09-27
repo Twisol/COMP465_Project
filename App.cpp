@@ -92,6 +92,26 @@ void App::OnKeyEvent(int key, int action) {
 
   if (action == GLFW_PRESS && key == GLFW_KEY_V) {
     this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
+    static double scalings[] = {
+      1.0,  // ACE_SPEED
+      2.5,  // PILOT_SPEED
+      6.25, // TRAINEE_SPEED
+      12.5, // DEBUG_SPEED
+      50.0, // SUPER_DEBUG_SPEED
+    };
+
+    if (this->time_scaling == scalings[0]) {
+      this->time_scaling = scalings[1];
+    } else if (this->time_scaling == scalings[1]) {
+      this->time_scaling = scalings[2];
+    } else if (this->time_scaling == scalings[2]) {
+      this->time_scaling = scalings[3];
+    } else if (this->time_scaling == scalings[3]) {
+      this->time_scaling = scalings[4];
+    } else if (this->time_scaling == scalings[4]) {
+      this->time_scaling = scalings[0];
+    }
   }
   //...
 }

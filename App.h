@@ -45,6 +45,7 @@ struct ModelComponent {
   {}
 };
 
+
 // A structure representing top-level information about the application.
 class App  {
 public:
@@ -54,6 +55,11 @@ public:
   void OnKeyEvent(int key, int action);
   void OnTimeStep(double delta);
   void OnRedraw();
+
+  // Returns the game's clock speed in game seconds per real second.
+  double GetTimeScaling() const {
+    return this->time_scaling;
+  }
 
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
@@ -71,6 +77,11 @@ private:
   glm::mat4 projectionMatrix{1.0f};
 
   int active_camera = 0;
+
+  // Coupling factor between game time and real time.
+  // This is the number of "game seconds" per "real seconds",
+  // or more humorously, the number of seconds per second.
+  double time_scaling = 1.0;
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
