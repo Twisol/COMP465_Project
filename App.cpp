@@ -2,12 +2,13 @@
 #include "shaders.h"
 
 #include <iostream>
-#include <cmath>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
+
+static std::string const CAMERAS[] = {"camera:front", "camera:top", "camera:unum", "camera:duo"};
 
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
@@ -31,33 +32,45 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
   this->projectionMatrix = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
 
-  // Transformation from world space into camera space.
-  // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
-  this->viewMatrix = glm::lookAt(
-      glm::vec3{0.0f, 10000.0f, 20000.0f},  // Position of the camera
-      glm::vec3{0.0f, 0.0f, 0.0f},  // Point to look towards
-      glm::vec3{0.0f, 1.0f, -1.0f}  // Direction towards which the top of the camera faces
-  );
-
-  // Load our simplistic model into GPU memory and obtain a reference to it.
-  this->debugMesh = loadSphereMesh();
+  // Load our models into GPU memory
+  this->debugMesh = loadMeshFromFile("models/debug.tri");
+  this->ruberMesh = loadMeshFromFile("models/Ruber.tri");
+  this->unumMesh = loadMeshFromFile("models/Unum.tri");
+  this->duoMesh = loadMeshFromFile("models/Duo.tri");
+  this->primusMesh = loadMeshFromFile("models/Primus.tri");
+  this->secundusMesh = loadMeshFromFile("models/Secundus.tri");
 
   // Instantiate the Ruber system orbiting bodies.
   {
     this->positions.insert(std::make_pair("Ruber", PositionComponent{"::origin", glm::vec3{0.0f, 0.0f, 0.0f}, 0.0}));
-    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2000.0f})}));
+    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->ruberMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
 
     this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{200.0f})}));
+    this->models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
 
     this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Duo", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{400.0f})}));
+    this->models.insert(std::make_pair("Duo", ModelComponent{&this->duoMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
 
     this->positions.insert(std::make_pair("Primus", PositionComponent{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Primus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
+    this->models.insert(std::make_pair("Primus", ModelComponent{&this->primusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
 
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{150.0f})}));
+    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
+  }
+
+  // Create some cameras
+  {
+    this->positions.insert(std::make_pair("camera:front", PositionComponent{"::origin", glm::vec3{0.0f, 10000.0f, 20000.0f}, 0.0f}));
+    this->cameras.insert(std::make_pair("camera:front", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+
+    this->positions.insert(std::make_pair("camera:top", PositionComponent{"::origin", glm::vec3{0.0f, 20000.0f, 0.0f}, 0.0f}));
+    this->cameras.insert(std::make_pair("camera:top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
+
+    this->positions.insert(std::make_pair("camera:unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}, 2.0*M_PI/63.0}));
+    this->cameras.insert(std::make_pair("camera:unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+
+    this->positions.insert(std::make_pair("camera:duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}, 2.0*M_PI/126.0}));
+    this->cameras.insert(std::make_pair("camera:duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 
   // Prevent rendering of fragments which lie behind other fragments
@@ -86,6 +99,29 @@ void App::OnKeyEvent(int key, int action) {
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
+  if (action == GLFW_PRESS && key == GLFW_KEY_V) {
+    this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
+    static double scalings[] = {
+      1.0,  // ACE_SPEED
+      2.5,  // PILOT_SPEED
+      6.25, // TRAINEE_SPEED
+      12.5, // DEBUG_SPEED
+      50.0, // SUPER_DEBUG_SPEED
+    };
+
+    if (this->time_scaling == scalings[0]) {
+      this->time_scaling = scalings[1];
+    } else if (this->time_scaling == scalings[1]) {
+      this->time_scaling = scalings[2];
+    } else if (this->time_scaling == scalings[2]) {
+      this->time_scaling = scalings[3];
+    } else if (this->time_scaling == scalings[3]) {
+      this->time_scaling = scalings[4];
+    } else if (this->time_scaling == scalings[4]) {
+      this->time_scaling = scalings[0];
+    }
+  }
   //...
 }
 
@@ -111,7 +147,19 @@ void App::OnRedraw() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Compute the cumulative transformation from the world basis to clip space.
-  glm::mat4 clipTransform = this->projectionMatrix * this->viewMatrix;
+  glm::mat4 viewMatrix = glm::lookAt(
+    this->positions.at(CAMERAS[this->active_camera]).translation, // Position of the camera
+    this->cameras.at(CAMERAS[this->active_camera]).at,  // Point to look towards
+    this->cameras.at(CAMERAS[this->active_camera]).up  // Direction towards which the top of the camera faces
+  );
+  {
+    PositionComponent const* current = &this->positions.at(CAMERAS[this->active_camera]);
+    while (models.find(current->parent) != models.end()) {
+      current = &this->positions.at(current->parent);
+      viewMatrix = viewMatrix * glm::translate(glm::mat4{1.0f}, -current->translation);
+    }
+  }
+  glm::mat4 clipTransform = this->projectionMatrix * viewMatrix;
 
   for (auto& entry : this->models) {
     auto& entity_name = entry.first;

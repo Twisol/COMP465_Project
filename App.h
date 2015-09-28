@@ -45,6 +45,19 @@ struct ModelComponent {
   {}
 };
 
+struct CameraComponent {
+  // Point to look at
+  glm::vec3 at{0.0f, 0.0f, 0.0f};
+  // Where the top of the camera is pointing
+  glm::vec3 up{0.0f, 0.0f, 0.0f};
+
+
+  CameraComponent(glm::vec3 at, glm::vec3 up)
+    : at(at), up(up)
+  {}
+};
+
+
 // A structure representing top-level information about the application.
 class App  {
 public:
@@ -55,20 +68,36 @@ public:
   void OnTimeStep(double delta);
   void OnRedraw();
 
+  // Returns the game's clock speed in game seconds per real second.
+  double GetTimeScaling() const {
+    return this->time_scaling;
+  }
+
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
+
   Mesh debugMesh;  // A mesh meant for testing and debugging.
+  Mesh ruberMesh;
+  Mesh unumMesh;
+  Mesh duoMesh;
+  Mesh primusMesh;
+  Mesh secundusMesh;
 
   // Transformation from camera space into clip space.
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
-  // Transformation from world space into camera space.
-  // In other words, this describes the position and rotation of the camera, and the perceived scale of the world.
-  glm::mat4 viewMatrix{1.0f};
+  // Index of the active camera in our ordered list of selectable cameras
+  int active_camera = 0;
+
+  // Coupling factor between game time and real time.
+  // This is the number of "game seconds" per "real seconds",
+  // or more humorously, the number of seconds per second.
+  double time_scaling = 1.0;
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
   std::unordered_map<std::string, ModelComponent> models;
+  std::unordered_map<std::string, CameraComponent> cameras;
 };
