@@ -83,6 +83,8 @@ private:
   Mesh duoMesh;
   Mesh primusMesh;
   Mesh secundusMesh;
+  Mesh shipMesh;
+  Mesh missileMesh;
 
   // Transformation from camera space into clip space.
   // This maps all visible content onto the volume of a unit cube centered at the origin.

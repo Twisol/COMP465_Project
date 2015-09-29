@@ -8,7 +8,7 @@
 
 using namespace std;
 
-static std::string const CAMERAS[] = {"camera:front", "camera:top", "camera:unum", "camera:duo"};
+static std::string const CAMERAS[] = {"camera:front", "camera:top", "camera:unum", "camera:duo", "camera:ship"};
 
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
@@ -39,6 +39,8 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->duoMesh = loadMeshFromFile("models/Duo.tri");
   this->primusMesh = loadMeshFromFile("models/Primus.tri");
   this->secundusMesh = loadMeshFromFile("models/Secundus.tri");
+  this->shipMesh = loadMeshFromFile("models/ship.tri");
+  this->missileMesh = loadMeshFromFile("models/missile.tri");
 
   // Instantiate the Ruber system orbiting bodies.
   {
@@ -56,6 +58,12 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}, 2.0*M_PI/126.0}));
     this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{2.0f})}));
+
+    this->positions.insert(std::make_pair("ship", PositionComponent{"::origin", glm::vec3{5000.0f, 1000.0f, 5000.0f}, 0.0f}));
+    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{3.0f})}));
+
+    this->positions.insert(std::make_pair("missile", PositionComponent{"::origin", glm::vec3{4900.0f, 1000.0f, 4850.0f}, 0.0f}));
+    this->models.insert(std::make_pair("missile", ModelComponent{&this->missileMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{4.0f})}));
   }
 
   // Create some cameras
@@ -71,6 +79,9 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("camera:duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}, 2.0*M_PI/126.0}));
     this->cameras.insert(std::make_pair("camera:duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+
+    this->positions.insert(std::make_pair("camera:ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}, 0.0f}));
+    this->cameras.insert(std::make_pair("camera:ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 
   // Prevent rendering of fragments which lie behind other fragments
@@ -81,9 +92,12 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Prune geometry (pre-fragment shader) which is facing away from the camera.
   // A triangle is facing "toward" the camera if its vertices are wound counter-clockwise,
   // and facing "away from" the camera if its vertices are wound clockwise.
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
+  //
+  // TODO: When the ship model is fixed to make the fins 3-dimensional, re-enable this.
+  //
+  //glEnable(GL_CULL_FACE);
+  //glFrontFace(GL_CCW);
+  //glCullFace(GL_BACK);
 
   // Clearing the color buffer will make everything black.
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
