@@ -30,7 +30,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // This camera can only see objects between 1 unit and 50001 units away from it,
   // with a 60-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
-  this->projectionMatrix = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
+  this->projectionMatrix = glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
 
   // Load our models into GPU memory
   this->debugMesh = loadMeshFromFile("models/debug.tri");
