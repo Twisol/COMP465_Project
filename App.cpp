@@ -28,7 +28,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
   //
   // This camera can only see objects between 1 unit and 50001 units away from it,
-  // with a 60-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
+  // with a 75-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
   this->projectionMatrix = glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
 
@@ -76,9 +76,11 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("camera:unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}, 2.0*M_PI/63.0}));
     this->cameras.insert(std::make_pair("camera:unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    //this->models.insert(std::make_pair("camera:unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
 
     this->positions.insert(std::make_pair("camera:duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}, 2.0*M_PI/126.0}));
     this->cameras.insert(std::make_pair("camera:duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    //this->models.insert(std::make_pair("camera:duo", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
 
     this->positions.insert(std::make_pair("camera:ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}, 0.0f}));
     this->cameras.insert(std::make_pair("camera:ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
