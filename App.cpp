@@ -94,12 +94,9 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Prune geometry (pre-fragment shader) which is facing away from the camera.
   // A triangle is facing "toward" the camera if its vertices are wound counter-clockwise,
   // and facing "away from" the camera if its vertices are wound clockwise.
-  //
-  // TODO: When the ship model is fixed to make the fins 3-dimensional, re-enable this.
-  //
-  //glEnable(GL_CULL_FACE);
-  //glFrontFace(GL_CCW);
-  //glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
 
   // Clearing the color buffer will make everything black.
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
