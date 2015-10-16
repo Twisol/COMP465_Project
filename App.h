@@ -68,10 +68,8 @@ public:
   void OnTimeStep(double delta);
   void OnRedraw();
 
-  // Returns the game's clock speed in game seconds per real second.
-  double GetTimeScaling() const {
-    return this->time_scaling;
-  }
+  // Returns the simulation's clock speed in game seconds per real second.
+  double GetTimeScaling() const;
 
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
@@ -90,13 +88,11 @@ private:
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
-  // Index of the active camera in our ordered list of selectable cameras
+  // Index of the active camera in our list of selectable cameras
   int active_camera = 0;
 
-  // Coupling factor between game time and real time.
-  // This is the number of "game seconds" per "real seconds",
-  // or more humorously, the number of seconds per second.
-  double time_scaling = 1.0;
+  // Index of the active coupling factor between game time and real time.
+  int time_scaling_idx = 0;
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;

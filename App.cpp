@@ -10,6 +10,19 @@ using namespace std;
 
 static std::string const CAMERAS[] = {"camera:front", "camera:top", "camera:unum", "camera:duo", "camera:ship"};
 
+static double const SCALINGS[] = {
+  1.0,  // ACE_SPEED
+  2.5,  // PILOT_SPEED
+  6.25, // TRAINEE_SPEED
+  12.5, // DEBUG_SPEED
+  50.0, // SUPER_DEBUG_SPEED
+};
+
+
+double App::GetTimeScaling() const {
+  return SCALINGS[this->time_scaling_idx];
+}
+
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
     << " with OpenGL version " << glGetString(GL_VERSION)
@@ -109,32 +122,15 @@ void App::OnReleaseContext() {
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action) {
   if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-    glfwSetWindowShouldClose(window, GL_TRUE);
+    glfwSetWindowShouldClose(this->window, GL_TRUE);
   }
 
   if (action == GLFW_PRESS && key == GLFW_KEY_V) {
     this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
-    static double scalings[] = {
-      1.0,  // ACE_SPEED
-      2.5,  // PILOT_SPEED
-      6.25, // TRAINEE_SPEED
-      12.5, // DEBUG_SPEED
-      50.0, // SUPER_DEBUG_SPEED
-    };
-
-    if (this->time_scaling == scalings[0]) {
-      this->time_scaling = scalings[1];
-    } else if (this->time_scaling == scalings[1]) {
-      this->time_scaling = scalings[2];
-    } else if (this->time_scaling == scalings[2]) {
-      this->time_scaling = scalings[3];
-    } else if (this->time_scaling == scalings[3]) {
-      this->time_scaling = scalings[4];
-    } else if (this->time_scaling == scalings[4]) {
-      this->time_scaling = scalings[0];
-    }
+    this->time_scaling_idx = (this->time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
   }
+
   //...
 }
 
@@ -150,6 +146,7 @@ void App::OnTimeStep(double delta) {
     );
 
     position.rotation_angle += position.angular_velocity * delta;
+
     position.translation = glm::vec3{rotation * glm::vec4{position.translation, 1.0f}};
   }
 }
@@ -169,7 +166,7 @@ void App::OnRedraw() {
     PositionComponent const* current = &this->positions.at(CAMERAS[this->active_camera]);
     while (models.find(current->parent) != models.end()) {
       current = &this->positions.at(current->parent);
-      viewMatrix = viewMatrix * glm::translate(glm::mat4{1.0f}, -current->translation);
+      viewMatrix = glm::translate(viewMatrix, -current->translation);
     }
   }
   glm::mat4 clipTransform = this->projectionMatrix * viewMatrix;
@@ -187,15 +184,16 @@ void App::OnRedraw() {
 
     // Compute the cumulative transformation from the entity to the world basis.
     glm::mat4 worldTransform = glm::translate(glm::mat4{1.0f}, position.translation);
+
     PositionComponent const* current = &position;
     while (models.find(current->parent) != models.end()) {
       current = &this->positions.at(current->parent);
-      worldTransform = glm::translate(glm::mat4{1.0f}, current->translation) * worldTransform;
+      worldTransform = glm::translate(worldTransform, current->translation);
     }
 
     // Set up the shader for this instance
     {
-      // Use our simple ("orthogonal projection, 100% ambient light") shader.
+      // Use our simple ("100% ambient light") shader.
       glUseProgram(this->shader_id);
 
       // Configure the render properties of this instance via shader uniforms.
