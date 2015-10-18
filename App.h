@@ -15,23 +15,32 @@
 #include <vector>
 #include <string>
 
+struct PhysicsComponent {
+  // Angular velocity relative to the parent.
+  double orbital_velocity = 0.0;
+
+  // Angular velocity relative to the entity's center.
+  double rotational_velocity = 0.0;
+
+
+  PhysicsComponent(double orbital_velocity, double rotational_velocity)
+    : orbital_velocity{orbital_velocity}, rotational_velocity{rotational_velocity}
+  {}
+};
+
 struct PositionComponent {
   // The parent frame.
-  std::string parent = "::origin";
+  std::string parent = "::world";
 
   // Translation relative to the parent frame.
   glm::vec3 translation{0.0f};
 
   // Rotation (in radians) about the Y-axis relative to the entity's own frame
-  double rotation_angle = 0.0f;
-
-  // Angular velocity relative to the parent.
-  // TODO: This belongs in a PhysicsComponent
-  double angular_velocity = 0.0;
+  double rotation_angle = 0.0;
 
 
-  PositionComponent(std::string parent, glm::vec3 const& translation, double angular_velocity)
-    : parent{parent}, translation{translation}, angular_velocity{angular_velocity}
+  PositionComponent(std::string parent, glm::vec3 const& translation)
+    : parent{parent}, translation{translation}
   {}
 };
 
@@ -96,6 +105,7 @@ private:
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
+  std::unordered_map<std::string, PhysicsComponent> physics;
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
 };
