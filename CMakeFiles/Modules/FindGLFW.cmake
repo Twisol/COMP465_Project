@@ -47,34 +47,9 @@ find_path( GLFW_INCLUDE_DIR
     /opt/graphics/OpenGL/contrib/libglfw
     /usr/local/include
     /usr/include/GL
-    #/usr/include
+    /usr/include
     DOC
     "The directory where GLFW/glfw3.h resides"
-)
-
-#
-# XXX: Do we still need to search for GL/glfw.h?
-#
-find_path( GLFW_INCLUDE_DIR
-    NAMES
-    GL/glfw.h
-    HINTS
-    "${GLFW_LOCATION}/include"
-    "$ENV{GLFW_LOCATION}/include"
-    PATHS
-    "$ENV{PROGRAMFILES}/GLFW/include"
-    "${OPENGL_INCLUDE_DIR}"
-    /usr/openwin/share/include
-    /usr/openwin/include
-    /usr/X11R6/include
-    /usr/include/X11
-    /opt/graphics/OpenGL/include
-    /opt/graphics/OpenGL/contrib/libglfw
-    /usr/local/include
-    /usr/include/GL
-    #/usr/include
-    DOC
-    "The directory where GL/glfw.h resides"
 )
 
 if (WIN32)
