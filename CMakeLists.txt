@@ -39,26 +39,20 @@ endif()
 # Tell GLEW we plan to link with it statically.
 add_definitions(-DGLEW_STATIC)
 
+# Add some definitions for our own code to use
+add_definitions(-DVERSION="0.0.2")
+add_definitions(-DGL_VALIDATE_SHADERS)
+
 
 ## Project configuration
-set(COMP465_Project_VERSION 0.0.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -pedantic")
 set(SOURCE_FILES
-    shared.h
     main.cpp
     shaders.cpp
     App.cpp
     util/debug.cpp
     Mesh.cpp
 )
-
-# Create a build configuration header.
-# This may be useful in the future, but for now it just adds the VERSION defined above.
-configure_file(
-    "${PROJECT_SOURCE_DIR}/shared.h.in"
-    "${PROJECT_BINARY_DIR}/shared.h"
-)
-include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(COMP465_Project ${SOURCE_FILES})
 target_link_libraries(COMP465_Project ${STATIC_DEPENDENCIES})

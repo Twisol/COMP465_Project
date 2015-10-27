@@ -1,8 +1,5 @@
 #pragma once
 
-// Project shared header
-#include "shared.h"
-
 #include "Mesh.h"
 
 // Cross-platform GL context and window toolkit. Handles the boilerplate.

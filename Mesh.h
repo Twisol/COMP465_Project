@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared.h"
+#include <GL/glew.h>
 #include <vector>
 
 struct Mesh {

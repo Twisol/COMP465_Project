@@ -1,7 +1,0 @@
-#pragma once
-
-// GL Extension Wrangler - automatically fetches and assigns OpenGL function pointers
-#include <GL/glew.h>
-
-#define VERSION "${COMP465_Project_VERSION}"
-#define GL_VALIDATE_SHADERS 1

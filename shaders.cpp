@@ -119,8 +119,8 @@ GLuint create_program_from_files(char const* vs_path, char const* fs_path) {
   return create_program(vs, vs_length, fs, fs_length);
 }
 
-bool assertShaderValid(GLuint program) {
 #if GL_VALIDATE_SHADERS
+bool assertShaderValid(GLuint program) {
   // Ensure that all shader inputs are available, and other such stuff.
   glValidateProgram(program);
 
@@ -133,7 +133,9 @@ bool assertShaderValid(GLuint program) {
     fprintf(stderr, "Error linking shader program:\n%s\n\n", log);
     return false;
   }
-#endif
 
   return true;
 }
+#else
+bool assertShaderValid(GLuint /*program*/) {}
+#endif

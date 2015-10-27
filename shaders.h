@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared.h"
+#include <GL/glew.h>
 
 // Compiles and links a GL program using shaders provided as source strings.
 // Returns the GL handle for the program if successful, or GL_NONE otherwise.

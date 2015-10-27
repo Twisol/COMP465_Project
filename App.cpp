@@ -1,6 +1,7 @@
 #include "App.h"
 #include "shaders.h"
 
+#include <GL/glew.h>
 #include <iostream>
 
 #include <glm/gtc/matrix_transform.hpp>
