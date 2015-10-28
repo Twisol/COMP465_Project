@@ -157,10 +157,16 @@ void App::OnTimeStep(double delta) {
     PositionComponent& position = this->positions.at(entity_name);
     PhysicsComponent& physics = entry.second;
 
-    position.rotation_angle += physics.rotational_velocity * delta;
-    position.translation = glm::rotateY(
+    position.orientation = glm::rotate(
+      position.orientation,
+      (float)(physics.rotational_velocity * delta),
+      glm::vec3{0.0f, 1.0f, 0.0f}
+    );
+
+    position.translation = glm::rotate(
       position.translation,
-      (float)(physics.orbital_velocity * delta)
+      (float)(physics.orbital_velocity * delta),
+      glm::vec3{0.0f, 1.0f, 0.0f}
     );
   }
 }
@@ -198,7 +204,7 @@ void App::OnRedraw() {
     // Compute the cumulative transformation from the entity to the world basis.
     glm::mat4 worldTransform =
         glm::translate(glm::mat4{1.0f}, position.translation)
-      * glm::rotate(glm::mat4{1.0f}, (float)position.rotation_angle, glm::vec3{0.0f, 1.0f, 0.0f});
+      * glm::mat4_cast(position.orientation);
 
     PositionComponent const* current = &position;
     while (models.find(current->parent) != models.end()) {

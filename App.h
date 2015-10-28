@@ -7,6 +7,7 @@
 // GLM math objects
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <unordered_map>
 #include <vector>
@@ -26,18 +27,18 @@ struct PhysicsComponent {
 };
 
 struct PositionComponent {
-  // The parent frame.
+  // The parent whose origin we translate against.
   std::string parent = "::world";
 
-  // Translation relative to the parent frame.
+  // Translation relative to the parent.
   glm::vec3 translation{0.0f};
 
-  // Rotation (in radians) about the Y-axis relative to the entity's own frame
-  double rotation_angle = 0.0;
+  // Orientation relative to the world.
+  glm::quat orientation{};
 
 
-  PositionComponent(std::string parent, glm::vec3 const& translation)
-    : parent{parent}, translation{translation}
+  PositionComponent(std::string parent, glm::vec3 const& translation, glm::quat const& orientation = glm::quat{})
+    : parent{parent}, translation{translation}, orientation{orientation}
   {}
 };
 
