@@ -159,7 +159,7 @@ void App::OnTimeStep(double delta) {
 
     position.orientation = glm::normalize(glm::rotate(
       position.orientation,
-      (float)(physics.rotational_velocity * delta),
+      (float)(physics.yaw_velocity * delta),
       glm::vec3{0.0f, 1.0f, 0.0f}
     ));
 

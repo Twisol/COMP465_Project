@@ -18,11 +18,10 @@ struct PhysicsComponent {
   double orbital_velocity = 0.0;
 
   // Angular velocity relative to the entity's center.
-  double rotational_velocity = 0.0;
+  double yaw_velocity = 0.0;
 
-
-  PhysicsComponent(double orbital_velocity, double rotational_velocity)
-    : orbital_velocity{orbital_velocity}, rotational_velocity{rotational_velocity}
+  PhysicsComponent(double orbital_velocity, double yaw_velocity)
+    : orbital_velocity{orbital_velocity}, yaw_velocity{yaw_velocity}
   {}
 };
 
@@ -36,7 +35,6 @@ struct PositionComponent {
   // Orientation relative to the world.
   glm::quat orientation{};
 
-
   PositionComponent(std::string parent, glm::vec3 const& translation, glm::quat const& orientation = glm::quat{})
     : parent{parent}, translation{translation}, orientation{orientation}
   {}
@@ -45,7 +43,6 @@ struct PositionComponent {
 struct ModelComponent {
   Mesh const* mesh = nullptr;
   glm::mat4 transformation{1.0f};
-
 
   ModelComponent(Mesh const* mesh, glm::mat4 const& transformation)
     : mesh{mesh}, transformation{transformation}
@@ -57,7 +54,6 @@ struct CameraComponent {
   glm::vec3 at{0.0f, 0.0f, 0.0f};
   // Where the top of the camera is pointing
   glm::vec3 up{0.0f, 0.0f, 0.0f};
-
 
   CameraComponent(glm::vec3 at, glm::vec3 up)
     : at(at), up(up)
