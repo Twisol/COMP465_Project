@@ -18,7 +18,9 @@ struct PhysicsComponent {
   double orbital_velocity = 0.0;
 
   // Angular velocity relative to the entity's center.
+  double pitch_velocity = 0.0;
   double yaw_velocity = 0.0;
+  double roll_velocity = 0.0;
 
   PhysicsComponent(double orbital_velocity, double yaw_velocity)
     : orbital_velocity{orbital_velocity}, yaw_velocity{yaw_velocity}
