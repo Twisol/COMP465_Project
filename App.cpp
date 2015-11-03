@@ -157,25 +157,21 @@ void App::OnTimeStep(double delta) {
     PositionComponent& position = this->positions.at(entity_name);
     PhysicsComponent& physics = entry.second;
 
-    // All three velocities added together give a cumulative axis of rotation
-    // and a speed of rotation
-    glm::vec3 const angular_velocity = glm::vec3{
-      (float)physics.pitch_velocity,
-      (float)physics.yaw_velocity,
-      (float)physics.roll_velocity
-    };
+    position.orientation =
+        glm::normalize(glm::rotate(
+          position.orientation,
+          glm::length(physics.angular_velocity * (float)delta),
+          physics.angular_velocity
+        ));
 
-    position.orientation = glm::normalize(glm::rotate(
-      position.orientation,
-      glm::length(angular_velocity * (float)delta),
-      angular_velocity
-    ));
-
-    position.translation = glm::rotate(
-      position.translation,
-      (float)(physics.orbital_velocity * delta),
-      glm::vec3{0.0f, 1.0f, 0.0f}
-    );
+    position.translation =
+        ( physics.translational_velocity * (float)delta
+        + glm::rotate(
+            position.translation,
+            (float)(physics.orbital_velocity * delta),
+            glm::vec3{0.0f, 1.0f, 0.0f}
+          )
+        );
   }
 }
 

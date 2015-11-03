@@ -18,12 +18,13 @@ struct PhysicsComponent {
   double orbital_velocity = 0.0;
 
   // Angular velocity relative to the entity's center.
-  double pitch_velocity = 0.0;
-  double yaw_velocity = 0.0;
-  double roll_velocity = 0.0;
+  glm::vec3 angular_velocity{0.0f, 0.0f, 0.0f};
 
-  PhysicsComponent(double orbital_velocity, double yaw_velocity)
-    : orbital_velocity{orbital_velocity}, yaw_velocity{yaw_velocity}
+  // Translational velocity relative to the entity
+  glm::vec3 translational_velocity{0.0f, 0.0f, 0.0f};
+
+  PhysicsComponent(double orbital_velocity, float yaw_velocity)
+    : orbital_velocity{orbital_velocity}, angular_velocity{0.0f, yaw_velocity, 0.0f}
   {}
 };
 
