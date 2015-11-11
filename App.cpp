@@ -157,12 +157,14 @@ void App::OnTimeStep(double delta) {
     PositionComponent& position = this->positions.at(entity_name);
     PhysicsComponent& physics = entry.second;
 
-    position.orientation =
-        glm::normalize(glm::rotate(
-          position.orientation,
-          glm::length(physics.angular_velocity * (float)delta),
-          physics.angular_velocity
-        ));
+    if (glm::length(physics.angular_velocity) != 0) {
+      position.orientation =
+          glm::normalize(glm::rotate(
+            position.orientation,
+            glm::length(physics.angular_velocity * (float)delta),
+            physics.angular_velocity
+          ));
+    }
 
     position.translation =
         ( physics.translational_velocity * (float)delta
