@@ -70,7 +70,7 @@ public:
   void OnAcquireContext(GLFWwindow* window);
   void OnReleaseContext();
 
-  void OnKeyEvent(int key, int action);
+  void OnKeyEvent(int key, int action, int mods);
   void OnTimeStep(double delta);
   void OnRedraw();
 

@@ -130,7 +130,7 @@ void App::OnReleaseContext() {
 }
 
 // Processes keyboard input.
-void App::OnKeyEvent(int key, int action) {
+void App::OnKeyEvent(int key, int action, int mods) {
   if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
     glfwSetWindowShouldClose(this->window, GL_TRUE);
   }
@@ -139,6 +139,33 @@ void App::OnKeyEvent(int key, int action) {
     this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
     this->time_scaling_idx = (this->time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
+  }
+
+  // trap for ship navigation inputs
+  if (action == GLFW_PRESS && key == GLFW_KEY_UP           && (mods & GLFW_MOD_ALT) == 0) {
+    // translation forward
+    printf("translation forward!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_UP    && (mods & GLFW_MOD_ALT) != 0) {
+    // pitch down
+    printf("pitch down!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN  && (mods & GLFW_MOD_ALT) == 0) {
+    // translation backward
+    printf("translation backward!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN  && (mods & GLFW_MOD_ALT) != 0) {
+    // pitch up
+    printf("pitch up!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT && (mods & GLFW_MOD_ALT) == 0) {
+    // yaw right
+    printf("yaw right!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT && (mods & GLFW_MOD_ALT) != 0) {
+    // roll right
+    printf("roll right!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT  && (mods & GLFW_MOD_ALT) == 0) {
+    // yaw left
+    printf("yaw left!\n");
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT  && (mods & GLFW_MOD_ALT) != 0) {
+    // roll left
+    printf("roll left!\n");
   }
 
   //...

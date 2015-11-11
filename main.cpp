@@ -56,8 +56,8 @@ static bool setupGLEW() {
 static App* G_APP = nullptr;
 
 // Processes ASCII keyboard input.
-void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/) {
-  G_APP->OnKeyEvent(key, action);
+void keyboard_callback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int mods) {
+  G_APP->OnKeyEvent(key, action, mods);
 }
 
 // A GLFW callback handling GLFW errors
