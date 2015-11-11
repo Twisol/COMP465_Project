@@ -80,7 +80,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     this->physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
-    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::rotate(glm::mat4{1.0f}, glm::radians(-90.0f), glm::vec3{1.0f, 0.0f, 0.0f}), glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
     this->physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
@@ -129,8 +129,13 @@ void App::OnReleaseContext() {
   this->window = nullptr;
 }
 
+static bool g_IS_MODDED = false;
+
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action, int mods) {
+  // JMC: what the freaking heck GLFW? make your input subsystem work already
+  g_IS_MODDED = (mods & GLFW_KEY_LEFT_ALT);
+
   if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
     glfwSetWindowShouldClose(this->window, GL_TRUE);
   }
@@ -140,39 +145,59 @@ void App::OnKeyEvent(int key, int action, int mods) {
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
     this->time_scaling_idx = (this->time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
   }
-
-  // trap for ship navigation inputs
-  if (action == GLFW_PRESS && key == GLFW_KEY_UP           && (mods & GLFW_MOD_ALT) == 0) {
-    // translation forward
-    printf("translation forward!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_UP    && (mods & GLFW_MOD_ALT) != 0) {
-    // pitch down
-    printf("pitch down!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN  && (mods & GLFW_MOD_ALT) == 0) {
-    // translation backward
-    printf("translation backward!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN  && (mods & GLFW_MOD_ALT) != 0) {
-    // pitch up
-    printf("pitch up!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT && (mods & GLFW_MOD_ALT) == 0) {
-    // yaw right
-    printf("yaw right!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT && (mods & GLFW_MOD_ALT) != 0) {
-    // roll right
-    printf("roll right!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT  && (mods & GLFW_MOD_ALT) == 0) {
-    // yaw left
-    printf("yaw left!\n");
-  } else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT  && (mods & GLFW_MOD_ALT) != 0) {
-    // roll left
-    printf("roll left!\n");
-  }
-
-  //...
 }
 
 // Updates the application state.
 void App::OnTimeStep(double delta) {
+  {
+    // ship navigation
+    glm::vec3 rotation{0.0f};
+    glm::vec3 translation{0.0f};
+
+    if (glfwGetKey(this->window, GLFW_KEY_UP) && !g_IS_MODDED) {
+      translation += glm::vec3{0.0f, 0.0f, -1.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_DOWN) && !g_IS_MODDED) {
+      translation += glm::vec3{0.0f, 0.0f, 1.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_LEFT) && !g_IS_MODDED) {
+      rotation += glm::vec3{0.0f, glm::radians(1.0f), 0.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) && !g_IS_MODDED) {
+      rotation += glm::vec3{0.0f, glm::radians(-1.0f), 0.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_UP) && g_IS_MODDED) {
+      rotation += glm::vec3{glm::radians(-1.0f), 0.0f, 0.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_DOWN) && g_IS_MODDED) {
+      rotation += glm::vec3{glm::radians(1.0f), 0.0f, 0.0f};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_LEFT) && g_IS_MODDED) {
+      rotation += glm::vec3{0.0f, 0.0f, glm::radians(1.0f)};
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) && g_IS_MODDED) {
+      rotation += glm::vec3{0.0f, 0.0f, glm::radians(-1.0f)};
+    }
+
+    if (glm::length(rotation) != 0) {
+      this->positions.at("ship").orientation =
+          glm::normalize(glm::rotate(
+            this->positions.at("ship").orientation,
+            glm::length(rotation),
+            rotation
+          ));
+    }
+
+    this->positions.at("ship").translation += this->positions.at("ship").orientation * translation;
+  }
+
   for (auto& entry : this->physics) {
     auto& entity_name = entry.first;
 
