@@ -80,7 +80,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     this->positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     this->physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
-    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::rotate(glm::mat4{1.0f}, glm::radians(-90.0f), glm::vec3{1.0f, 0.0f, 0.0f}), glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
 
     this->positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
     this->physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
@@ -96,14 +96,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
     this->cameras.insert(std::make_pair("camera:top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
 
     this->positions.insert(std::make_pair("camera:unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}}));
-    this->physics.insert(std::make_pair("camera:unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     this->cameras.insert(std::make_pair("camera:unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
-    //this->models.insert(std::make_pair("camera:unum", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
 
     this->positions.insert(std::make_pair("camera:duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
-    this->physics.insert(std::make_pair("camera:duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     this->cameras.insert(std::make_pair("camera:duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
-    //this->models.insert(std::make_pair("camera:duo", ModelComponent{&this->debugMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{100.0f})}));
 
     this->positions.insert(std::make_pair("camera:ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}}));
     this->cameras.insert(std::make_pair("camera:ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
@@ -257,6 +253,10 @@ void App::OnRedraw() {
   );
   {
     PositionComponent const* current = &this->positions.at(CAMERAS[this->active_camera]);
+    if (models.find(current->parent) != models.end()) {
+      PositionComponent const* parent = &this->positions.at(current->parent);
+      viewMatrix = viewMatrix * glm::mat4_cast(glm::inverse(parent->orientation));
+    }
     while (models.find(current->parent) != models.end()) {
       current = &this->positions.at(current->parent);
       viewMatrix = viewMatrix * glm::translate(glm::mat4{1.0f}, -current->translation);
