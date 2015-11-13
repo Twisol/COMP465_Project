@@ -307,13 +307,15 @@ void App::OnRedraw() {
       // Configure the render properties of this instance via shader uniforms.
       // Properties specific to each instance may include its position, animation step, etc.
 
-      // This uniform describes the transformation from model coordinates into clip coordinates.
-      glm::mat4 frame =
-          this->projectionMatrix                    // Projection
-        * viewMatrix                                // View
+      // This uniform describes the transformation from model coordinates into view coordinates.
+      glm::mat4 modelview =
+          viewMatrix                                // View
         * (worldTransform * model.transformation);  // Model
-      GLint location = glGetUniformLocation(this->shader_id, "transform");
-      glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(frame));
+      GLint modelviewLocation = glGetUniformLocation(this->shader_id, "modelview");
+      glUniformMatrix4fv(modelviewLocation, 1, GL_FALSE, glm::value_ptr(modelview));
+
+      GLint projectionLocation = glGetUniformLocation(this->shader_id, "projection");
+      glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
     }
 
     // Render the instance's geometry
