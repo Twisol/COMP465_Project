@@ -7,6 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
 using namespace std;
@@ -316,6 +317,9 @@ void App::OnRedraw() {
 
       GLint projectionLocation = glGetUniformLocation(this->shader_id, "projection");
       glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
+
+      GLint normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
+      glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(glm::mat3{modelview})));
     }
 
     // Render the instance's geometry
