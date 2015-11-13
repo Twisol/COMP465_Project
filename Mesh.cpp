@@ -18,7 +18,6 @@ Mesh loadSphereMesh() {
   {
     GLfloat vertices[(3+3+4)*6*6] = {
         // position            normal                 color
-
         // Front face
         -1.0f,  1.0f,  1.0f,   0.0f,  0.0f,  1.0f,   1.0f, 0.0f, 0.0f, 1.0f,
         -1.0f, -1.0f,  1.0f,   0.0f,  0.0f,  1.0f,   1.0f, 0.0f, 0.0f, 1.0f,
@@ -188,7 +187,7 @@ static bool readTriLine(FILE* f, std::vector<GLfloat>& tri_vector) {
   glm::vec3 const p1{p1x, p1y, p1z};
   glm::vec3 const p2{p2x, p2y, p2z};
   glm::vec3 const p3{p3x, p3y, p3z};
-  glm::vec3 const normal = glm::cross(p3 - p2, p1 - p2);
+  glm::vec3 const normal = glm::normalize(glm::cross(p2 - p1, p3 - p1));
 
   // push our data into the vector of GLfloats
   tri_vector.push_back(p1.x);
