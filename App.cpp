@@ -198,6 +198,19 @@ void App::OnTimeStep(double delta) {
     this->positions.at("ship").translation += this->positions.at("ship").orientation * translation;
   }
 
+  // Update ship's position with respect to Ruber's gravity
+  {
+    PositionComponent& ship_position = this->positions.at("ship");
+    PositionComponent& sun_position = this->positions.at("Ruber");
+
+    glm::vec3 distance_vector = sun_position.translation - ship_position.translation;
+    float distance = glm::length(distance_vector);
+
+    glm::vec3 gravity_vector = (90000000.0f / (distance*distance)) * (distance_vector / distance);
+    ship_position.translation += gravity_vector * (float)delta;
+  }
+
+  // Update all entities based on their physical motion
   for (auto& entry : this->physics) {
     auto& entity_name = entry.first;
 
@@ -209,6 +222,7 @@ void App::OnTimeStep(double delta) {
     PositionComponent& position = this->positions.at(entity_name);
     PhysicsComponent& physics = entry.second;
 
+    // Rotate the entity
     if (glm::length(physics.angular_velocity) != 0) {
       position.orientation =
           glm::normalize(glm::rotate(
@@ -218,6 +232,7 @@ void App::OnTimeStep(double delta) {
           ));
     }
 
+    // Translate the entity
     position.translation =
         ( physics.translational_velocity * (float)delta
         + glm::rotate(
