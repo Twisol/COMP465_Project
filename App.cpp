@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <iostream>
+#include <sstream>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,7 +11,7 @@
 
 using namespace std;
 
-static std::string const CAMERAS[] = {"camera:front", "camera:top", "camera:unum", "camera:duo", "camera:ship"};
+static std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
 
 static double const SCALINGS[] = {
   1.0,  // ACE_SPEED
@@ -81,6 +82,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     this->positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     this->physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
     this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->silos.insert(std::make_pair("ship", SiloComponent{9}));
 
     this->positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
     this->physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
@@ -89,20 +91,20 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
   // Create some cameras
   {
-    this->positions.insert(std::make_pair("camera:front", PositionComponent{"::world", glm::vec3{0.0f, 10000.0f, 20000.0f}}));
-    this->cameras.insert(std::make_pair("camera:front", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    this->positions.insert(std::make_pair("View: Front", PositionComponent{"::world", glm::vec3{0.0f, 10000.0f, 20000.0f}}));
+    this->cameras.insert(std::make_pair("View: Front", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    this->positions.insert(std::make_pair("camera:top", PositionComponent{"::world", glm::vec3{0.0f, 20000.0f, 0.0f}}));
-    this->cameras.insert(std::make_pair("camera:top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
+    this->positions.insert(std::make_pair("View: Top", PositionComponent{"::world", glm::vec3{0.0f, 20000.0f, 0.0f}}));
+    this->cameras.insert(std::make_pair("View: Top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
 
-    this->positions.insert(std::make_pair("camera:unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}}));
-    this->cameras.insert(std::make_pair("camera:unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    this->positions.insert(std::make_pair("View: Unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}}));
+    this->cameras.insert(std::make_pair("View: Unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    this->positions.insert(std::make_pair("camera:duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
-    this->cameras.insert(std::make_pair("camera:duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    this->positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
+    this->cameras.insert(std::make_pair("View: Duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    this->positions.insert(std::make_pair("camera:ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}}));
-    this->cameras.insert(std::make_pair("camera:ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    this->positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}}));
+    this->cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 
   // Prevent rendering of fragments which lie behind other fragments
@@ -127,6 +129,14 @@ void App::OnReleaseContext() {
 
 static bool g_IS_MODDED = false;
 
+// Generates simulation window title text
+// TODO: Implement missile counts, update and frame rates
+std::string App::GetTitle() const {
+  std::stringstream builder;
+  builder << "Warbird: " << this->silos.at("ship").missiles << " | Unum: ?? | Secundus: ?? | U/S: ?? | F/S: ?? | " << CAMERAS[this->active_camera];
+  return builder.str();
+}
+
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action, int mods) {
   // JMC: what the freaking heck GLFW? make your input subsystem work already
@@ -146,6 +156,10 @@ void App::OnKeyEvent(int key, int action, int mods) {
 // Updates the application state.
 void App::OnTimeStep(double delta) {
   {
+    // viewing window title update
+    glfwSetWindowTitle(this->window, this->GetTitle().c_str());
+
+
     // ship navigation
     glm::vec3 rotation{0.0f};
     glm::vec3 translation{0.0f};

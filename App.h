@@ -63,6 +63,14 @@ struct CameraComponent {
   {}
 };
 
+struct SiloComponent {
+  // A store of missiles
+  int missiles;
+
+  SiloComponent(int missiles)
+    : missiles(missiles)
+  {}
+};
 
 // A structure representing top-level information about the application.
 class App  {
@@ -76,6 +84,9 @@ public:
 
   // Returns the simulation's clock speed in game seconds per real second.
   double GetTimeScaling() const;
+
+protected:
+  std::string GetTitle() const;
 
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
@@ -105,4 +116,5 @@ private:
   std::unordered_map<std::string, PhysicsComponent> physics;
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
+  std::unordered_map<std::string, SiloComponent> silos;
 };
