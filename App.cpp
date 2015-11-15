@@ -13,6 +13,7 @@
 using namespace std;
 
 static std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
+static std::string const WARPS[] = {"View: Unum", "View: Duo"};
 
 static double const SCALINGS[] = {
   1.0,  // ACE_SPEED
@@ -67,6 +68,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     this->models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->silos.insert(std::make_pair("Unum", SiloComponent{5}));
 
     this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
@@ -79,6 +81,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Secundus", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->silos.insert(std::make_pair("Secundus", SiloComponent{5}));
 
     this->positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     this->physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
@@ -131,10 +134,14 @@ void App::OnReleaseContext() {
 static bool g_IS_MODDED = false;
 
 // Generates simulation window title text
-// TODO: Implement missile counts, update and frame rates
+// TODO: Implement frame rate
 std::string App::GetTitle() const {
   std::stringstream builder;
-  builder << "Warbird: " << this->silos.at("ship").missiles << " | Unum: ?? | Secundus: ?? | U/S: ?? | F/S: ?? | " << CAMERAS[this->active_camera];
+  builder << "Warbird: " << this->silos.at("ship").missiles << " | Unum: " <<
+  this->silos.at("Unum").missiles << " | Secundus: " <<
+  this->silos.at("Secundus").missiles <<   " | U/S: " <<
+  1000.0 / (GetTimeScaling() * 40.0) << " | F/S: ?? | " <<
+  CAMERAS[this->active_camera];
   return builder.str();
 }
 
@@ -151,6 +158,9 @@ void App::OnKeyEvent(int key, int action, int mods) {
     this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
     this->time_scaling_idx = (this->time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+    this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
+    this->positions.at("ship").translation = this->positions.at(CAMERAS[this->active_warp]).translation;
   }
 }
 
