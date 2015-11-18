@@ -16,11 +16,10 @@ static std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", 
 static std::string const WARPS[] = {"View: Unum", "View: Duo"};
 static float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
 static double const SCALINGS[] = {
-  1.0,  // ACE_SPEED
-  2.5,  // PILOT_SPEED
-  6.25, // TRAINEE_SPEED
-  12.5, // DEBUG_SPEED
-  50.0, // SUPER_DEBUG_SPEED
+  1.00, // ACE_SPEED
+  0.40, // PILOT_SPEED
+  0.16, // TRAINEE_SPEED
+  0.08, // DEBUG_SPEED
 };
 
 
@@ -140,7 +139,7 @@ std::string App::GetTitle() const {
   builder << "Warbird: " << this->silos.at("ship").missiles << " | Unum: " <<
   this->silos.at("Unum").missiles << " | Secundus: " <<
   this->silos.at("Secundus").missiles <<   " | U/S: " <<
-  1000.0 / (GetTimeScaling() * 40.0) << " | F/S: ?? | " <<
+  (1000.0 * GetTimeScaling()) / 40.0 << " | F/S: ?? | " <<
   CAMERAS[this->active_camera];
   return builder.str();
 }
@@ -165,6 +164,8 @@ void App::OnKeyEvent(int key, int action, int mods) {
   } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
     this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
     this->positions.at("ship").translation = this->positions.at(CAMERAS[this->active_warp]).translation;
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
+    this->gravity_enabled = !gravity_enabled;
   }
 }
 
@@ -228,7 +229,7 @@ void App::OnTimeStep(double delta) {
   }
 
   // Update ship's position with respect to Ruber's gravity
-  {
+  if (this->gravity_enabled) {
     PositionComponent& ship_position = this->positions.at("ship");
     PositionComponent& sun_position = this->positions.at("Ruber");
 

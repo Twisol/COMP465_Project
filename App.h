@@ -117,6 +117,9 @@ private:
   // Index of the active coupling factor between game time and real time.
   int time_scaling_idx = 0;
 
+  // Toggles simulation of gravity
+  bool gravity_enabled = false;
+
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
   std::unordered_map<std::string, PhysicsComponent> physics;
