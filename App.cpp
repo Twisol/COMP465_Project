@@ -163,7 +163,31 @@ void App::OnKeyEvent(int key, int action, int mods) {
     this->active_thrust_factor = (this->active_thrust_factor + 1) % (sizeof(THRUSTS) / sizeof(THRUSTS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
     this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
-    this->positions.at("ship").translation = this->positions.at(CAMERAS[this->active_warp]).translation;
+
+    PositionComponent& warp_position = this->positions.at(WARPS[this->active_warp]);
+
+    // Compute the cumulative transformation from the entity to the world basis.
+    glm::vec3 cumulativeTranslation = warp_position.translation;
+    glm::quat orientation = glm::quat{};
+    if (positions.find(warp_position.parent) != positions.end()) {
+      PositionComponent const* parent = &this->positions.at(warp_position.parent);
+      cumulativeTranslation = glm::vec3{glm::mat4_cast(parent->orientation) * glm::vec4{cumulativeTranslation, 1.0f}};
+      orientation = parent->orientation;
+    }
+
+    PositionComponent const* current = &warp_position;
+    while (positions.find(current->parent) != positions.end()) {
+      current = &this->positions.at(current->parent);
+      cumulativeTranslation += current->translation;
+    }
+
+    // why
+    this->positions.at("ship").translation = cumulativeTranslation;
+    if (WARPS[this->active_warp] == "View: Unum") {
+      this->positions.at("ship").orientation = glm::rotate(orientation, glm::radians(180.0f), glm::vec3{0.0f, 1.0f, 0.0f});
+    } else if (WARPS[this->active_warp] == "View: Duo") {
+      this->positions.at("ship").orientation = orientation;
+    }
   } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
     this->gravity_enabled = !gravity_enabled;
   }
@@ -287,11 +311,11 @@ void App::OnRedraw() {
   );
   {
     PositionComponent const* current = &this->positions.at(CAMERAS[this->active_camera]);
-    if (models.find(current->parent) != models.end()) {
+    if (positions.find(current->parent) != positions.end()) {
       PositionComponent const* parent = &this->positions.at(current->parent);
       viewMatrix = viewMatrix * glm::mat4_cast(glm::inverse(parent->orientation));
     }
-    while (models.find(current->parent) != models.end()) {
+    while (positions.find(current->parent) != positions.end()) {
       current = &this->positions.at(current->parent);
       viewMatrix = viewMatrix * glm::translate(glm::mat4{1.0f}, -current->translation);
     }
@@ -314,7 +338,7 @@ void App::OnRedraw() {
       * glm::mat4_cast(position.orientation);
 
     PositionComponent const* current = &position;
-    while (models.find(current->parent) != models.end()) {
+    while (positions.find(current->parent) != positions.end()) {
       current = &this->positions.at(current->parent);
       worldTransform = glm::translate(glm::mat4{1.0f}, current->translation) * worldTransform;
     }
