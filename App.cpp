@@ -14,7 +14,7 @@ using namespace std;
 
 static std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
 static std::string const WARPS[] = {"View: Unum", "View: Duo"};
-
+static float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
 static double const SCALINGS[] = {
   1.0,  // ACE_SPEED
   2.5,  // PILOT_SPEED
@@ -45,10 +45,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Transformation from camera space into clip space.
   // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
   //
-  // This camera can only see objects between 1 unit and 50001 units away from it,
+  // This camera can only see objects between 1 unit and 100,001 units away from it,
   // with a 75-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
   // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
-  this->projectionMatrix = glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 50001.0f);
+  this->projectionMatrix = glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 100001.0f);
 
   // Load our models into GPU memory
   this->debugMesh = loadMeshFromFile("models/debug.tri");
@@ -147,7 +147,9 @@ std::string App::GetTitle() const {
 
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action, int mods) {
-  // JMC: what the freaking heck GLFW? make your input subsystem work already
+  // This is a workaround for a bug in GLFW which prevents modifier key releases
+  // from being properly recognized during polling (which we do in the
+  // OnTimeStep method).
   g_IS_MODDED = (mods & GLFW_KEY_LEFT_ALT);
 
   if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
@@ -158,54 +160,59 @@ void App::OnKeyEvent(int key, int action, int mods) {
     this->active_camera = (this->active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
     this->time_scaling_idx = (this->time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+    this->active_thrust_factor = (this->active_thrust_factor + 1) % (sizeof(THRUSTS) / sizeof(THRUSTS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
     this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
     this->positions.at("ship").translation = this->positions.at(CAMERAS[this->active_warp]).translation;
   }
 }
 
+
+static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotation, glm::vec3* const translation) {
+  if (glfwGetKey(window, GLFW_KEY_UP) && !g_IS_MODDED) {
+    *translation += glm::vec3{0.0f, 0.0f, -1.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_DOWN) && !g_IS_MODDED) {
+    *translation += glm::vec3{0.0f, 0.0f, 1.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_LEFT) && !g_IS_MODDED) {
+    *rotation += glm::vec3{0.0f, 0.02f, 0.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) && !g_IS_MODDED) {
+    *rotation += glm::vec3{0.0f, -0.02f, 0.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_UP) && g_IS_MODDED) {
+    *rotation += glm::vec3{-0.02f, 0.0f, 0.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_DOWN) && g_IS_MODDED) {
+    *rotation += glm::vec3{0.02f, 0.0f, 0.0f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_LEFT) && g_IS_MODDED) {
+    *rotation += glm::vec3{0.0f, 0.0f, 0.02f};
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) && g_IS_MODDED) {
+    *rotation += glm::vec3{0.0f, 0.0f, -0.02f};
+  }
+}
+
 // Updates the application state.
 void App::OnTimeStep(double delta) {
+  // viewing window title update
+  glfwSetWindowTitle(this->window, this->GetTitle().c_str());
+
   {
-    // viewing window title update
-    glfwSetWindowTitle(this->window, this->GetTitle().c_str());
-
-
     // ship navigation
     glm::vec3 rotation{0.0f};
     glm::vec3 translation{0.0f};
-
-    if (glfwGetKey(this->window, GLFW_KEY_UP) && !g_IS_MODDED) {
-      translation += glm::vec3{0.0f, 0.0f, -1.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_DOWN) && !g_IS_MODDED) {
-      translation += glm::vec3{0.0f, 0.0f, 1.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_LEFT) && !g_IS_MODDED) {
-      rotation += glm::vec3{0.0f, glm::radians(1.0f), 0.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) && !g_IS_MODDED) {
-      rotation += glm::vec3{0.0f, glm::radians(-1.0f), 0.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_UP) && g_IS_MODDED) {
-      rotation += glm::vec3{glm::radians(-1.0f), 0.0f, 0.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_DOWN) && g_IS_MODDED) {
-      rotation += glm::vec3{glm::radians(1.0f), 0.0f, 0.0f};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_LEFT) && g_IS_MODDED) {
-      rotation += glm::vec3{0.0f, 0.0f, glm::radians(1.0f)};
-    }
-
-    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) && g_IS_MODDED) {
-      rotation += glm::vec3{0.0f, 0.0f, glm::radians(-1.0f)};
-    }
+    get_input_vectors(this->window, &rotation, &translation);
 
     if (glm::length(rotation) != 0) {
       this->positions.at("ship").orientation =
@@ -216,7 +223,8 @@ void App::OnTimeStep(double delta) {
           ));
     }
 
-    this->positions.at("ship").translation += this->positions.at("ship").orientation * translation;
+    // TODO: Make ship speeds selectable
+    this->positions.at("ship").translation += this->positions.at("ship").orientation * (THRUSTS[this->active_thrust_factor]*translation);
   }
 
   // Update ship's position with respect to Ruber's gravity
