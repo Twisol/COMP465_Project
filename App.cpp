@@ -130,18 +130,44 @@ void App::OnReleaseContext() {
   this->window = nullptr;
 }
 
+
 static bool g_IS_MODDED = false;
 
 // Generates simulation window title text
 // TODO: Implement frame rate
 std::string App::GetTitle() const {
   std::stringstream builder;
-  builder << "Warbird: " << this->silos.at("ship").missiles << " | Unum: " <<
-  this->silos.at("Unum").missiles << " | Secundus: " <<
-  this->silos.at("Secundus").missiles <<   " | U/S: " <<
-  (1000.0 * GetTimeScaling()) / 40.0 << " | F/S: ?? | " <<
-  CAMERAS[this->active_camera];
+  builder << "Warbird: " << this->silos.at("ship").missiles
+          << " | Unum: " << this->silos.at("Unum").missiles
+          << " | Secundus: " << this->silos.at("Secundus").missiles
+          << " | U/S: " << (1000.0 * GetTimeScaling()) / 40.0
+          << " | F/S: ?? | " << CAMERAS[this->active_camera]
+          ;
   return builder.str();
+}
+
+glm::mat4 App::GetViewMatrix(std::string const& id) const {
+  PositionComponent const& position = this->positions.at(id);
+  CameraComponent const& camera = this->cameras.at(id);
+
+  glm::mat4 viewMatrix = glm::lookAt(
+    position.translation, // Position of the camera
+    camera.at,  // Point to look towards
+    camera.up  // Direction towards which the top of the camera faces
+  );
+
+  if (positions.find(position.parent) != positions.end()) {
+    PositionComponent const& parent = this->positions.at(position.parent);
+    viewMatrix *= glm::mat4_cast(glm::inverse(parent.orientation));
+  }
+
+  PositionComponent const* current = &position;
+  while (positions.find(current->parent) != positions.end()) {
+    current = &this->positions.at(current->parent);
+    viewMatrix *= glm::translate(glm::mat4{1.0f}, -current->translation);
+  }
+
+  return viewMatrix;
 }
 
 // Processes keyboard input.
@@ -162,32 +188,11 @@ void App::OnKeyEvent(int key, int action, int mods) {
   } else if (action == GLFW_PRESS && key == GLFW_KEY_S) {
     this->active_thrust_factor = (this->active_thrust_factor + 1) % (sizeof(THRUSTS) / sizeof(THRUSTS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+    glm::mat4 worldMatrix = glm::inverse(GetViewMatrix(WARPS[this->active_warp]));
+    this->positions.at("ship").translation = glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+    this->positions.at("ship").orientation = glm::quat{glm::mat3{glm::inverseTranspose(worldMatrix)}};
+
     this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
-
-    PositionComponent& warp_position = this->positions.at(WARPS[this->active_warp]);
-
-    // Compute the cumulative transformation from the entity to the world basis.
-    glm::vec3 cumulativeTranslation = warp_position.translation;
-    glm::quat orientation = glm::quat{};
-    if (positions.find(warp_position.parent) != positions.end()) {
-      PositionComponent const* parent = &this->positions.at(warp_position.parent);
-      cumulativeTranslation = glm::vec3{glm::mat4_cast(parent->orientation) * glm::vec4{cumulativeTranslation, 1.0f}};
-      orientation = parent->orientation;
-    }
-
-    PositionComponent const* current = &warp_position;
-    while (positions.find(current->parent) != positions.end()) {
-      current = &this->positions.at(current->parent);
-      cumulativeTranslation += current->translation;
-    }
-
-    // why
-    this->positions.at("ship").translation = cumulativeTranslation;
-    if (WARPS[this->active_warp] == "View: Unum") {
-      this->positions.at("ship").orientation = glm::rotate(orientation, glm::radians(180.0f), glm::vec3{0.0f, 1.0f, 0.0f});
-    } else if (WARPS[this->active_warp] == "View: Duo") {
-      this->positions.at("ship").orientation = orientation;
-    }
   } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
     this->gravity_enabled = !gravity_enabled;
   }
@@ -303,22 +308,7 @@ void App::OnRedraw() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Compute the cumulative transformation from the world basis to clip space.
-  glm::mat4 viewMatrix = glm::lookAt(
-    this->positions.at(CAMERAS[this->active_camera]).translation, // Position of the camera
-    this->cameras.at(CAMERAS[this->active_camera]).at,  // Point to look towards
-    this->cameras.at(CAMERAS[this->active_camera]).up  // Direction towards which the top of the camera faces
-  );
-  {
-    PositionComponent const* current = &this->positions.at(CAMERAS[this->active_camera]);
-    if (positions.find(current->parent) != positions.end()) {
-      PositionComponent const* parent = &this->positions.at(current->parent);
-      viewMatrix = viewMatrix * glm::mat4_cast(glm::inverse(parent->orientation));
-    }
-    while (positions.find(current->parent) != positions.end()) {
-      current = &this->positions.at(current->parent);
-      viewMatrix = viewMatrix * glm::translate(glm::mat4{1.0f}, -current->translation);
-    }
-  }
+  glm::mat4 const viewMatrix = GetViewMatrix(CAMERAS[this->active_camera]);
 
   for (auto& entry : this->models) {
     auto& entity_name = entry.first;
@@ -361,7 +351,7 @@ void App::OnRedraw() {
       glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
 
       GLint normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
-      glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::inverseTranspose(glm::mat3{modelview})));
+      glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3{glm::inverseTranspose(modelview)}));
     }
 
     // Render the instance's geometry
