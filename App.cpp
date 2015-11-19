@@ -248,7 +248,6 @@ void App::OnTimeStep(double delta) {
           ));
     }
 
-    // TODO: Make ship speeds selectable
     this->positions.at("ship").translation += this->positions.at("ship").orientation * (THRUSTS[this->active_thrust_factor]*translation);
   }
 
