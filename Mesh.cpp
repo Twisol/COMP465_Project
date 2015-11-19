@@ -112,7 +112,6 @@ Mesh loadMeshFromFile(char const* tri_path) {
   mesh.primitiveType = GL_TRIANGLES;
   mesh.primitiveCount = (GLsizei)(tri_vector.size()/7);
   mesh.boundingRadius = radius;
-  printf("Radius: %f\n", radius);
 
   // Set attribute slot 0 to read the first 3 floats out of every set of 10 floats in the model.
   // In other words, slot 0 refers to the position data.
