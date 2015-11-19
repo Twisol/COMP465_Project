@@ -88,6 +88,7 @@ public:
 protected:
   std::string GetTitle() const;
   glm::mat4 GetViewMatrix(std::string const& id) const;
+  glm::mat4 GetWorldMatrix(std::string const& id) const;
 
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app

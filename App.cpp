@@ -62,34 +62,34 @@ void App::OnAcquireContext(GLFWwindow* window) {
   // Instantiate the Ruber system orbiting bodies.
   {
     this->positions.insert(std::make_pair("Ruber", PositionComponent{"::world", glm::vec3{0.0f, 0.0f, 0.0f}}));
-    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->ruberMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("Ruber", ModelComponent{&this->ruberMesh, glm::mat4{1.0f}}));
 
     this->positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh, glm::mat4{1.0f}}));
     this->silos.insert(std::make_pair("Unum", SiloComponent{5}));
 
     this->positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Duo", ModelComponent{&this->duoMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("Duo", ModelComponent{&this->duoMesh, glm::mat4{1.0f}}));
 
     this->positions.insert(std::make_pair("Primus", PositionComponent{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Primus", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
-    this->models.insert(std::make_pair("Primus", ModelComponent{&this->primusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("Primus", ModelComponent{&this->primusMesh, glm::mat4{1.0f}}));
 
     this->positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}}));
     this->physics.insert(std::make_pair("Secundus", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
-    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh, glm::mat4{1.0f}}));
     this->silos.insert(std::make_pair("Secundus", SiloComponent{5}));
 
     this->positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     this->physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
-    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh, glm::mat4{1.0f}}));
     this->silos.insert(std::make_pair("ship", SiloComponent{9}));
 
     this->positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
     this->physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
-    this->models.insert(std::make_pair("missile", ModelComponent{&this->missileMesh, glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f})}));
+    this->models.insert(std::make_pair("missile", ModelComponent{&this->missileMesh, glm::mat4{1.0f}}));
   }
 
   // Create some cameras
@@ -168,6 +168,22 @@ glm::mat4 App::GetViewMatrix(std::string const& id) const {
   }
 
   return viewMatrix;
+}
+
+glm::mat4 App::GetWorldMatrix(std::string const& id) const {
+  PositionComponent const& position = this->positions.at(id);
+
+  glm::mat4 worldMatrix =
+      glm::translate(glm::mat4{1.0f}, position.translation)
+    * glm::mat4_cast(position.orientation);
+
+  PositionComponent const* current = &position;
+  while (positions.find(current->parent) != positions.end()) {
+    current = &this->positions.at(current->parent);
+    worldMatrix = glm::translate(glm::mat4{1.0f}, current->translation) * worldMatrix;
+  }
+
+  return worldMatrix;
 }
 
 // Processes keyboard input.
@@ -318,19 +334,7 @@ void App::OnRedraw() {
       continue;
     }
 
-    PositionComponent& position = this->positions.at(entity_name);
-    ModelComponent& model = entry.second;
-
-    // Compute the cumulative transformation from the entity to the world basis.
-    glm::mat4 worldTransform =
-        glm::translate(glm::mat4{1.0f}, position.translation)
-      * glm::mat4_cast(position.orientation);
-
-    PositionComponent const* current = &position;
-    while (positions.find(current->parent) != positions.end()) {
-      current = &this->positions.at(current->parent);
-      worldTransform = glm::translate(glm::mat4{1.0f}, current->translation) * worldTransform;
-    }
+    ModelComponent const& model = entry.second;
 
     // Set up the shader for this instance
     {
@@ -340,10 +344,10 @@ void App::OnRedraw() {
       // Configure the render properties of this instance via shader uniforms.
       // Properties specific to each instance may include its position, animation step, etc.
 
+      glm::mat4 const worldTransform = GetWorldMatrix(entity_name);
+
       // This uniform describes the transformation from model coordinates into view coordinates.
-      glm::mat4 modelview =
-          viewMatrix                                // View
-        * (worldTransform * model.transformation);  // Model
+      glm::mat4 const modelview = viewMatrix * worldTransform * model.transformation;
       GLint modelviewLocation = glGetUniformLocation(this->shader_id, "modelview");
       glUniformMatrix4fv(modelviewLocation, 1, GL_FALSE, glm::value_ptr(modelview));
 
