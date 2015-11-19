@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 
-static bool readTriFile(char const* tri_path, std::vector<GLfloat>& tri_vector);
-static bool readTriLine(FILE* f, std::vector<GLfloat>& tri_vector);
+static bool readTriFile(char const* tri_path, std::vector<GLfloat>* const tri_vector, float* const radius);
+static bool readTriLine(FILE* f, std::vector<GLfloat>* const tri_vector, float* const radius);
 
 
 Mesh loadSphereMesh() {
@@ -70,6 +70,7 @@ Mesh loadSphereMesh() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     mesh.primitiveType = GL_TRIANGLES;
     mesh.primitiveCount = 6*6;
+    mesh.boundingRadius = sqrt(3);
   }
 
 
@@ -96,19 +97,22 @@ Mesh loadSphereMesh() {
 Mesh loadMeshFromFile(char const* tri_path) {
   Mesh mesh;
 
-  std::vector<GLfloat> tri_vector;
   // Make the model's GL state active
   glBindVertexArray(mesh.vao);
   glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
 
   // get our file and parse it into our vector of GLfloats
-  readTriFile(tri_path, tri_vector); // TODO: ADD ERROR TRAPPING
+  std::vector<GLfloat> tri_vector;
+  float radius = 0.0f;
+  readTriFile(tri_path, &tri_vector, &radius); // TODO: ADD ERROR TRAPPING
 
   // Upload the model to GPU memory
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*tri_vector.size(), tri_vector.data(), GL_STATIC_DRAW);
 
   mesh.primitiveType = GL_TRIANGLES;
   mesh.primitiveCount = (GLsizei)(tri_vector.size()/7);
+  mesh.boundingRadius = radius;
+  printf("Radius: %f\n", radius);
 
   // Set attribute slot 0 to read the first 3 floats out of every set of 10 floats in the model.
   // In other words, slot 0 refers to the position data.
@@ -132,7 +136,7 @@ Mesh loadMeshFromFile(char const* tri_path) {
 
 // load a .TRI file into a vector of GLFloats using the provided file path and vector reference
 // returns true if successful, false otherwise
-static bool readTriFile(char const* tri_path, std::vector<GLfloat>& tri_vector) {
+static bool readTriFile(char const* tri_path, std::vector<GLfloat>* const tri_vector, float* const radius) {
   FILE* f = fopen(tri_path, "r");
   if (!f) {
     fprintf(stderr, "Unable to open file '%s'.\n", tri_path);
@@ -141,7 +145,7 @@ static bool readTriFile(char const* tri_path, std::vector<GLfloat>& tri_vector) 
 
   while (!feof(f)) {
     // parse current line into our array
-    bool success = readTriLine(f, tri_vector);
+    bool success = readTriLine(f, tri_vector, radius);
     if (!success) {
       // TODO: error checking
       break;
@@ -154,7 +158,7 @@ static bool readTriFile(char const* tri_path, std::vector<GLfloat>& tri_vector) 
 
 // Parses a line from a .TRI file and pushes vertex position and color data into vector
 // takes file pointer and reference to vector of GLfloats
-static bool readTriLine(FILE* f, std::vector<GLfloat>& tri_vector) {
+static bool readTriLine(FILE* f, std::vector<GLfloat>* const tri_vector, float* const radius) {
   // our vertex position data
   float p1x, p1y, p1z;
   float p2x, p2y, p2z;
@@ -190,38 +194,40 @@ static bool readTriLine(FILE* f, std::vector<GLfloat>& tri_vector) {
   glm::vec3 const normal = glm::normalize(glm::cross(p2 - p1, p3 - p1));
 
   // push our data into the vector of GLfloats
-  tri_vector.push_back(p1.x);
-  tri_vector.push_back(p1.y);
-  tri_vector.push_back(p1.z);
-  tri_vector.push_back(normal.x);
-  tri_vector.push_back(normal.y);
-  tri_vector.push_back(normal.z);
-  tri_vector.push_back(color.r);
-  tri_vector.push_back(color.g);
-  tri_vector.push_back(color.b);
-  tri_vector.push_back(color.a);
+  tri_vector->push_back(p1.x);
+  tri_vector->push_back(p1.y);
+  tri_vector->push_back(p1.z);
+  tri_vector->push_back(normal.x);
+  tri_vector->push_back(normal.y);
+  tri_vector->push_back(normal.z);
+  tri_vector->push_back(color.r);
+  tri_vector->push_back(color.g);
+  tri_vector->push_back(color.b);
+  tri_vector->push_back(color.a);
 
-  tri_vector.push_back(p2.x);
-  tri_vector.push_back(p2.y);
-  tri_vector.push_back(p2.z);
-  tri_vector.push_back(normal.x);
-  tri_vector.push_back(normal.y);
-  tri_vector.push_back(normal.z);
-  tri_vector.push_back(color.r);
-  tri_vector.push_back(color.g);
-  tri_vector.push_back(color.b);
-  tri_vector.push_back(color.a);
+  tri_vector->push_back(p2.x);
+  tri_vector->push_back(p2.y);
+  tri_vector->push_back(p2.z);
+  tri_vector->push_back(normal.x);
+  tri_vector->push_back(normal.y);
+  tri_vector->push_back(normal.z);
+  tri_vector->push_back(color.r);
+  tri_vector->push_back(color.g);
+  tri_vector->push_back(color.b);
+  tri_vector->push_back(color.a);
 
-  tri_vector.push_back(p3.x);
-  tri_vector.push_back(p3.y);
-  tri_vector.push_back(p3.z);
-  tri_vector.push_back(normal.x);
-  tri_vector.push_back(normal.y);
-  tri_vector.push_back(normal.z);
-  tri_vector.push_back(color.r);
-  tri_vector.push_back(color.g);
-  tri_vector.push_back(color.b);
-  tri_vector.push_back(color.a);
+  tri_vector->push_back(p3.x);
+  tri_vector->push_back(p3.y);
+  tri_vector->push_back(p3.z);
+  tri_vector->push_back(normal.x);
+  tri_vector->push_back(normal.y);
+  tri_vector->push_back(normal.z);
+  tri_vector->push_back(color.r);
+  tri_vector->push_back(color.g);
+  tri_vector->push_back(color.b);
+  tri_vector->push_back(color.a);
+
+  *radius = fmax(fmax(glm::length(p1), glm::length(p2)), fmax(glm::length(p3), *radius));
 
   return true;
 }

@@ -9,6 +9,8 @@ struct Mesh {
   GLenum primitiveType = GL_TRIANGLES;  // Describe the mapping between vertices and primitives
   GLsizei primitiveCount = 0;  // The number of primitives in the mesh
 
+  float boundingRadius = 1;  // The radius of a sphere bounding the mesh
+
   Mesh() {
     // Create a GPU memory handle
     // This allows you to allocate and store things in GPU memory.
