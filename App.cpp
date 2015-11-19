@@ -206,7 +206,7 @@ void App::OnKeyEvent(int key, int action, int mods) {
   } else if (action == GLFW_PRESS && key == GLFW_KEY_W) {
     glm::mat4 worldMatrix = glm::inverse(GetViewMatrix(WARPS[this->active_warp]));
     this->positions.at("ship").translation = glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
-    this->positions.at("ship").orientation = glm::quat{glm::mat3{glm::inverseTranspose(worldMatrix)}};
+    this->positions.at("ship").orientation = glm::normalize(glm::quat{glm::mat3{glm::inverseTranspose(worldMatrix)}});
 
     this->active_warp = (this->active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
