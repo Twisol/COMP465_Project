@@ -45,10 +45,9 @@ struct PositionComponent {
 
 struct ModelComponent {
   Mesh const* mesh = nullptr;
-  glm::mat4 transformation{1.0f};
 
-  ModelComponent(Mesh const* mesh, glm::mat4 const& transformation)
-    : mesh{mesh}, transformation{transformation}
+  ModelComponent(Mesh const* mesh)
+    : mesh{mesh}
   {}
 };
 
