@@ -66,8 +66,5 @@ struct Mesh {
 };
 
 
-Mesh loadTriangleMesh();
-Mesh loadSphereMesh();
-
 // Loads .TRI mesh file from the filesystem.
 Mesh loadMeshFromFile(char const* tri_path);
