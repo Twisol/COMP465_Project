@@ -13,6 +13,11 @@
 #include <vector>
 #include <string>
 
+// time to death in msec
+float const time2death = 50000;
+// time to target in msec
+float const time2target = 5000;
+
 enum targeting_mode{
   silo_targeting,
   missile_targeting
@@ -69,11 +74,11 @@ struct CameraComponent {
 
 struct SiloComponent {
   // A store of missiles per site
-  int missiles = 5;
+  int missiles = 0;
   // Is there an active missile
-  bool current_missile = false;
+  string current_missile;
 
-  SiloComponent(int missiles, bool current_missile)
+  SiloComponent(int missiles, string current_missile)
     : missiles(missiles), current_missile(current_missile)
   {}
 };
@@ -83,10 +88,6 @@ struct MissileComponent{
   glm::vec3 target{0.0f, 0.0f, 0.0f};
   // Missile type
   targeting_mode missile = silo_targeting;
-  // time to death in msec
-  float time2death = 50000;
-  // time to target in msec
-  float time2target = 5000;
 
   MissileComponent(glm::vec3 target, targeting_mode missile, float time2death, float time2target)
     : target(target), missile(missile), time2death(time2death), time2target(time2target)
