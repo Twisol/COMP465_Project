@@ -106,7 +106,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     this->positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
     this->cameras.insert(std::make_pair("View: Duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    this->positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{50.0f, 100.0f, 400.0f}}));
+    this->positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 0.0f, 400.0f}}));
     this->cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 
@@ -225,27 +225,27 @@ static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotatio
   }
 
   if (glfwGetKey(window, GLFW_KEY_LEFT) && !g_IS_MODDED) {
-    *rotation += glm::vec3{0.0f, 0.02f, 0.0f};
+    *rotation += glm::vec3{0.0f, glm::degrees(0.02f), 0.0f};
   }
 
   if (glfwGetKey(window, GLFW_KEY_RIGHT) && !g_IS_MODDED) {
-    *rotation += glm::vec3{0.0f, -0.02f, 0.0f};
+    *rotation += glm::vec3{0.0f, glm::degrees(-0.02f), 0.0f};
   }
 
   if (glfwGetKey(window, GLFW_KEY_UP) && g_IS_MODDED) {
-    *rotation += glm::vec3{-0.02f, 0.0f, 0.0f};
+    *rotation += glm::vec3{glm::degrees(-0.02f), 0.0f, 0.0f};
   }
 
   if (glfwGetKey(window, GLFW_KEY_DOWN) && g_IS_MODDED) {
-    *rotation += glm::vec3{0.02f, 0.0f, 0.0f};
+    *rotation += glm::vec3{glm::degrees(0.02f), 0.0f, 0.0f};
   }
 
   if (glfwGetKey(window, GLFW_KEY_LEFT) && g_IS_MODDED) {
-    *rotation += glm::vec3{0.0f, 0.0f, 0.02f};
+    *rotation += glm::vec3{0.0f, 0.0f, glm::degrees(0.02f)};
   }
 
   if (glfwGetKey(window, GLFW_KEY_RIGHT) && g_IS_MODDED) {
-    *rotation += glm::vec3{0.0f, 0.0f, -0.02f};
+    *rotation += glm::vec3{0.0f, 0.0f, glm::degrees(-0.02f)};
   }
 }
 
@@ -256,32 +256,39 @@ void App::OnTimeStep(double delta) {
 
   {
     // ship navigation
+    PositionComponent& ship_position = this->positions.at("ship");
+
+    // Determine ship thrusts from uer input
     glm::vec3 rotation{0.0f};
     glm::vec3 translation{0.0f};
     get_input_vectors(this->window, &rotation, &translation);
 
+    // Scale ship thrusts by time and thrust factors
+    rotation *= (float)delta;
+    translation *= THRUSTS[this->active_thrust_factor]*(float)delta;
+
     if (glm::length(rotation) != 0) {
-      this->positions.at("ship").orientation =
+      ship_position.orientation =
           glm::normalize(glm::rotate(
-            this->positions.at("ship").orientation,
+            ship_position.orientation,
             glm::length(rotation),
             rotation
           ));
     }
 
-    this->positions.at("ship").translation += this->positions.at("ship").orientation * (THRUSTS[this->active_thrust_factor]*translation);
-  }
+    // Orient the translation vector down the ship's heading.
+    ship_position.translation += ship_position.orientation * translation;
 
-  // Update ship's position with respect to Ruber's gravity
-  if (this->gravity_enabled) {
-    PositionComponent& ship_position = this->positions.at("ship");
-    PositionComponent& sun_position = this->positions.at("Ruber");
+    // Update ship's position with respect to Ruber's gravity
+    if (this->gravity_enabled) {
+      PositionComponent& sun_position = this->positions.at("Ruber");
 
-    glm::vec3 distance_vector = sun_position.translation - ship_position.translation;
-    float distance = glm::length(distance_vector);
+      glm::vec3 distance_vector = sun_position.translation - ship_position.translation;
+      float distance = glm::length(distance_vector);
 
-    glm::vec3 gravity_vector = (90000000.0f / (distance*distance)) * (distance_vector / distance);
-    ship_position.translation += gravity_vector * (float)delta;
+      glm::vec3 gravity_vector = (90000000.0f / (distance*distance)) * (distance_vector / distance);
+      ship_position.translation += gravity_vector * (float)delta;
+    }
   }
 
   // Update all entities based on their physical motion
