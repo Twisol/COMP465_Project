@@ -258,7 +258,7 @@ void App::OnTimeStep(double delta) {
     // ship navigation
     PositionComponent& ship_position = this->positions.at("ship");
 
-    // Determine ship thrusts from uer input
+    // Determine ship thrusts from user input
     glm::vec3 rotation{0.0f};
     glm::vec3 translation{0.0f};
     get_input_vectors(this->window, &rotation, &translation);

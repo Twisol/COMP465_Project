@@ -13,6 +13,11 @@
 #include <vector>
 #include <string>
 
+enum targeting_mode{
+  silo_targeting,
+  missile_targeting
+};
+
 struct PhysicsComponent {
   // Angular velocity relative to the parent.
   double orbital_velocity = 0.0;
@@ -63,11 +68,28 @@ struct CameraComponent {
 };
 
 struct SiloComponent {
-  // A store of missiles
-  int missiles;
+  // A store of missiles per site
+  int missiles = 5;
+  // Is there an active missile
+  bool current_missile = false;
 
-  SiloComponent(int missiles)
-    : missiles(missiles)
+  SiloComponent(int missiles, bool current_missile)
+    : missiles(missiles), current_missile(current_missile)
+  {}
+};
+
+struct MissileComponent{
+  // Target to hit
+  glm::vec3 target{0.0f, 0.0f, 0.0f};
+  // Missile type
+  targeting_mode missile = silo_targeting;
+  // time to death in msec
+  float time2death = 50000;
+  // time to target in msec
+  float time2target = 5000;
+
+  MissileComponent(glm::vec3 target, targeting_mode missile, float time2death, float time2target)
+    : target(target), missile(missile), time2death(time2death), time2target(time2target)
   {}
 };
 
