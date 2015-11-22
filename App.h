@@ -80,17 +80,19 @@ struct SiloComponent {
 
 struct MissileComponent {
   // time to death in msec
-  static constexpr float const MAX_LIFETIME = 50000;
+  static constexpr double const MAX_LIFETIME = 50000;
   // time before targeting behavior in msec
-  static constexpr float const IDLE_PERIOD = 5000;
+  static constexpr double const IDLE_PERIOD = 5000;
 
   // Target to hit
   std::string target;
   // Missile type
   targeting_mode targeting;
 
-  MissileComponent(std::string target, targeting_mode targeting)
-    : target(target), targeting(targeting)
+  double time_to_live = 0;
+
+  MissileComponent(std::string target, targeting_mode targeting, double time_to_live)
+    : target(target), targeting(targeting), time_to_live(time_to_live)
   {}
 };
 
