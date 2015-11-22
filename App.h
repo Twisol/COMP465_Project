@@ -13,14 +13,9 @@
 #include <vector>
 #include <string>
 
-// time to death in msec
-float const time2death = 50000;
-// time to target in msec
-float const time2target = 5000;
-
-enum targeting_mode{
-  silo_targeting,
-  missile_targeting
+enum targeting_mode {
+  SILO_TARGETING,
+  MISSILE_TARGETING,
 };
 
 struct PhysicsComponent {
@@ -68,29 +63,34 @@ struct CameraComponent {
   glm::vec3 up{0.0f, 0.0f, 0.0f};
 
   CameraComponent(glm::vec3 at, glm::vec3 up)
-    : at(at), up(up)
+    : at{at}, up{up}
   {}
 };
 
 struct SiloComponent {
   // A store of missiles per site
   int missiles = 0;
-  // Is there an active missile
-  string current_missile;
+  // Name of currently-fired missile
+  std::string current_missile = "";
 
-  SiloComponent(int missiles, string current_missile)
-    : missiles(missiles), current_missile(current_missile)
+  SiloComponent(int missiles)
+    : missiles{missiles}
   {}
 };
 
-struct MissileComponent{
-  // Target to hit
-  glm::vec3 target{0.0f, 0.0f, 0.0f};
-  // Missile type
-  targeting_mode missile = silo_targeting;
+struct MissileComponent {
+  // time to death in msec
+  static constexpr float const MAX_LIFETIME = 50000;
+  // time before targeting behavior in msec
+  static constexpr float const IDLE_PERIOD = 5000;
 
-  MissileComponent(glm::vec3 target, targeting_mode missile, float time2death, float time2target)
-    : target(target), missile(missile), time2death(time2death), time2target(time2target)
+  // Target to hit
+  std::string target;
+  // Missile type
+  targeting_mode targeting;
+
+  MissileComponent(std::string target, targeting_mode targeting)
+    : target(target), targeting(targeting)
   {}
 };
 
