@@ -13,11 +13,6 @@
 #include <vector>
 #include <string>
 
-enum targeting_mode {
-  SILO_TARGETING,
-  MISSILE_TARGETING,
-};
-
 struct PhysicsComponent {
   // Angular velocity relative to the parent.
   double orbital_velocity = 0.0;
@@ -78,6 +73,11 @@ struct SiloComponent {
   {}
 };
 
+enum targeting_mode {
+  SILO_TARGETING,
+  SHIP_TARGETING,
+};
+
 struct MissileComponent {
   // time to death in msec
   static constexpr double const MAX_LIFETIME = 50000;
@@ -85,14 +85,14 @@ struct MissileComponent {
   static constexpr double const IDLE_PERIOD = 5000;
 
   // Target to hit
-  std::string target;
+  std::string target = "";
   // Missile type
   targeting_mode targeting;
 
-  double time_to_live = 0;
+  double time_to_live = MAX_LIFETIME;
 
-  MissileComponent(std::string target, targeting_mode targeting, double time_to_live)
-    : target(target), targeting(targeting), time_to_live(time_to_live)
+  MissileComponent(targeting_mode targeting)
+    : targeting(targeting)
   {}
 };
 
@@ -152,4 +152,5 @@ private:
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
   std::unordered_map<std::string, SiloComponent> silos;
+  std::unordered_map<std::string, MissileComponent> missiles;
 };
