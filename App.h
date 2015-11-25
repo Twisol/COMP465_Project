@@ -110,7 +110,6 @@ public:
   double GetTimeScaling() const;
 
 protected:
-  std::string GetTitle() const;
   glm::mat4 GetViewMatrix(std::string const& id) const;
   glm::mat4 GetWorldMatrix(std::string const& id) const;
 
@@ -131,25 +130,36 @@ private:
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
+public:
   // Index of the active camera in our list of selectable cameras
   int active_camera = 0;
+private:
 
   // Index of the active warp zone in our list of selectable warp zones
   int active_warp = 0;
 
+public:
   // Index of the current ship thrust factor
   int active_thrust_factor = 0;
+private:
 
   // Index of the active coupling factor between game time and real time.
   int time_scaling_idx = 0;
 
+public:
   // Toggles simulation of gravity
   bool gravity_enabled = false;
+private:
 
   // Entity component tables
   std::unordered_map<std::string, PositionComponent> positions;
   std::unordered_map<std::string, PhysicsComponent> physics;
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
+public:
   std::unordered_map<std::string, SiloComponent> silos;
+private:
 };
+
+extern std::string const CAMERAS[];
+extern float const THRUSTS[];

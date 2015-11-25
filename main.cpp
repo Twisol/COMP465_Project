@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <thread>
+#include <sstream>
 
 using namespace std;
 
@@ -65,6 +66,34 @@ void error_callback(int /*error*/, char const* description) {
   cerr << description << endl;
 }
 
+// Generates simulation window title text
+// TODO: Implement frame rate
+char foo[256];
+char const* make_window_title(App const& app, int framerate) {
+  sprintf(foo, "Warbird: %d | Unum: %d | Secundus: %d | U/S: %d | F/S: %d | %s | Gravity: %s | Thrust: %d",
+    app.silos.at("ship").missiles,
+    app.silos.at("Unum").missiles,
+    app.silos.at("Secundus").missiles,
+    (int)((1000.0 * app.GetTimeScaling()) / 40.0),
+    framerate,
+    CAMERAS[app.active_camera].c_str(),
+    (app.gravity_enabled ? "On" : "Off"),
+    (int)THRUSTS[app.active_thrust_factor]
+    );
+  return foo;
+  // std::stringstream builder;
+  // builder << "Warbird: " << app.silos.at("ship").missiles
+  //         << " | Unum: " << app.silos.at("Unum").missiles
+  //         << " | Secundus: " << app.silos.at("Secundus").missiles
+  //         << " | U/S: " << (1000.0 * app.GetTimeScaling()) / 40.0
+  //         << " | F/S: " << framerate
+  //         << " | " << CAMERAS[app.active_camera]
+  //         << " | Gravity: " << (app.gravity_enabled ? "On" : "Off")
+  //         << " | Thrust: " << (int)THRUSTS[app.active_thrust_factor]
+  //         ;
+  // return builder.str();
+}
+
 // Entry point.
 int main(int /*argc*/, char** /*argv*/) {
   // Initialize GLFW
@@ -108,13 +137,18 @@ int main(int /*argc*/, char** /*argv*/) {
       // Accumulates time as time passes. The simulator consumes this in discrete time quanta.
       double accumulator = 0.0;
 
+      // Tracks our approximate FPS
+      float prevFPS = 0;
+
       while (!glfwWindowShouldClose(window)) {
+        double const newTime = glfwGetTime();
+        double const delta = newTime - currentTime;
+        currentTime = newTime;
+
         // Accumulate the period of time which has passed since the last frame.
         // Apply a scalar factor to the difference to decouple the simulation's clock speed
         //   from the real world's clock speed.
-        double newTime = glfwGetTime();
-        accumulator += G_APP->GetTimeScaling() * (newTime - currentTime);
-        currentTime = newTime;
+        accumulator += G_APP->GetTimeScaling() * delta;
 
         // Run the simulation for as many time quanta as possible.
         while (accumulator >= dt) {
@@ -126,6 +160,14 @@ int main(int /*argc*/, char** /*argv*/) {
         // We could do some fancy interpolation/extrapolation with the remainder,
         // but that's not terribly important here.
         G_APP->OnRedraw();
+
+        float const currentFPS = 1 / ((glfwGetTime() - newTime) + delta);
+        printf("time: %fms\n", ((glfwGetTime() - newTime) + delta));
+        float const approxFPS = 0.05*currentFPS + 0.95*prevFPS;
+        prevFPS = approxFPS;
+
+        // viewing window title update
+        glfwSetWindowTitle(window, make_window_title(*G_APP, (int)prevFPS));
 
         glfwPollEvents();
 

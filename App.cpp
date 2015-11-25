@@ -3,7 +3,6 @@
 
 #include <GL/glew.h>
 #include <iostream>
-#include <sstream>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -12,9 +11,9 @@
 
 using namespace std;
 
-static std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
+std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
 static std::string const WARPS[] = {"View: Unum", "View: Duo"};
-static float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
+float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
 static double const SCALINGS[] = {
   1.00, // ACE_SPEED
   0.40, // PILOT_SPEED
@@ -133,22 +132,6 @@ void App::OnReleaseContext() {
 
 static bool g_IS_MODDED = false;
 
-// Generates simulation window title text
-// TODO: Implement frame rate
-std::string App::GetTitle() const {
-  std::stringstream builder;
-  builder << "Warbird: " << this->silos.at("ship").missiles
-          << " | Unum: " << this->silos.at("Unum").missiles
-          << " | Secundus: " << this->silos.at("Secundus").missiles
-          << " | U/S: " << (1000.0 * GetTimeScaling()) / 40.0
-          << " | F/S: ??"
-          << " | " << CAMERAS[this->active_camera]
-          << " | Gravity: " << (gravity_enabled ? "On" : "Off")
-          << " | Thrust: " << THRUSTS[active_thrust_factor]
-          ;
-  return builder.str();
-}
-
 glm::mat4 App::GetViewMatrix(std::string const& id) const {
   PositionComponent const& position = this->positions.at(id);
   CameraComponent const& camera = this->cameras.at(id);
@@ -254,9 +237,6 @@ static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotatio
 
 // Updates the application state.
 void App::OnTimeStep(double delta) {
-  // viewing window title update
-  glfwSetWindowTitle(this->window, this->GetTitle().c_str());
-
   {
     // ship navigation
     PositionComponent& ship_position = this->positions.at("ship");
