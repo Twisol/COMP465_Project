@@ -145,29 +145,36 @@ int main(int /*argc*/, char** /*argv*/) {
         double const delta = newTime - currentTime;
         currentTime = newTime;
 
-        // Accumulate the period of time which has passed since the last frame.
-        // Apply a scalar factor to the difference to decouple the simulation's clock speed
-        //   from the real world's clock speed.
-        accumulator += G_APP->GetTimeScaling() * delta;
+        // Update simulation
+        {
+          // Accumulate the period of time which has passed since the last frame.
+          // Apply a scalar factor to the difference to decouple the simulation's clock speed
+          //   from the real world's clock speed.
+          accumulator += G_APP->GetTimeScaling() * delta;
 
-        // Run the simulation for as many time quanta as possible.
-        while (accumulator >= dt) {
-          accumulator -= dt;
-          G_APP->OnTimeStep(dt);
+          // Run the simulation for as many time quanta as possible.
+          while (accumulator >= dt) {
+            accumulator -= dt;
+            G_APP->OnTimeStep(dt);
+          }
         }
 
+        // Render simulation
+        //
         // Note that some time may have been left unsimulated at this point.
         // We could do some fancy interpolation/extrapolation with the remainder,
         // but that's not terribly important here.
         G_APP->OnRedraw();
 
-        float const currentFPS = 1 / ((glfwGetTime() - newTime) + delta);
-        printf("time: %fms\n", ((glfwGetTime() - newTime) + delta));
-        float const approxFPS = 0.05*currentFPS + 0.95*prevFPS;
-        prevFPS = approxFPS;
+        // Interact with window
+        {
+          // Update the current FPS
+          float const currentFPS = 1 / ((glfwGetTime() - newTime) + delta);
+          prevFPS = 0.05*currentFPS + 0.95*prevFPS;
 
-        // viewing window title update
-        glfwSetWindowTitle(window, make_window_title(*G_APP, (int)prevFPS));
+          // viewing window title update
+          glfwSetWindowTitle(window, make_window_title(*G_APP, (int)prevFPS));
+        }
 
         glfwPollEvents();
 
