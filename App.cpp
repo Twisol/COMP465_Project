@@ -141,7 +141,10 @@ std::string App::GetTitle() const {
           << " | Unum: " << this->silos.at("Unum").missiles
           << " | Secundus: " << this->silos.at("Secundus").missiles
           << " | U/S: " << (1000.0 * GetTimeScaling()) / 40.0
-          << " | F/S: ?? | " << CAMERAS[this->active_camera]
+          << " | F/S: ??"
+          << " | " << CAMERAS[this->active_camera]
+          << " | Gravity: " << (gravity_enabled ? "On" : "Off")
+          << " | Thrust: " << THRUSTS[active_thrust_factor]
           ;
   return builder.str();
 }
