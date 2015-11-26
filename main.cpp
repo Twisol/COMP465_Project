@@ -67,31 +67,18 @@ void error_callback(int /*error*/, char const* description) {
 }
 
 // Generates simulation window title text
-// TODO: Implement frame rate
-char foo[256];
-char const* make_window_title(App const& app, int framerate) {
-  sprintf(foo, "Warbird: %d | Unum: %d | Secundus: %d | U/S: %d | F/S: %d | %s | Gravity: %s | Thrust: %d",
-    app.silos.at("ship").missiles,
-    app.silos.at("Unum").missiles,
-    app.silos.at("Secundus").missiles,
-    (int)((1000.0 * app.GetTimeScaling()) / 40.0),
-    framerate,
-    CAMERAS[app.active_camera].c_str(),
-    (app.gravity_enabled ? "On" : "Off"),
-    (int)THRUSTS[app.active_thrust_factor]
-    );
-  return foo;
-  // std::stringstream builder;
-  // builder << "Warbird: " << app.silos.at("ship").missiles
-  //         << " | Unum: " << app.silos.at("Unum").missiles
-  //         << " | Secundus: " << app.silos.at("Secundus").missiles
-  //         << " | U/S: " << (1000.0 * app.GetTimeScaling()) / 40.0
-  //         << " | F/S: " << framerate
-  //         << " | " << CAMERAS[app.active_camera]
-  //         << " | Gravity: " << (app.gravity_enabled ? "On" : "Off")
-  //         << " | Thrust: " << (int)THRUSTS[app.active_thrust_factor]
-  //         ;
-  // return builder.str();
+std::string make_window_title(App const& app, int framerate) {
+  std::stringstream builder;
+  builder << "Warbird: " << app.state.entities.silos.at("ship").missiles
+          << " | Unum: " << app.state.entities.silos.at("Unum").missiles
+          << " | Secundus: " << app.state.entities.silos.at("Secundus").missiles
+          << " | U/S: " << (1000.0 * app.GetTimeScaling()) / 40.0
+          << " | F/S: " << framerate
+          << " | " << CAMERAS[app.state.active_camera]
+          << " | Gravity: " << (app.state.gravity_enabled ? "On" : "Off")
+          << " | Thrust: " << (int)THRUSTS[app.state.active_thrust_factor]
+          ;
+  return builder.str();
 }
 
 // Entry point.
@@ -173,7 +160,7 @@ int main(int /*argc*/, char** /*argv*/) {
           prevFPS = 0.05*currentFPS + 0.95*prevFPS;
 
           // viewing window title update
-          glfwSetWindowTitle(window, make_window_title(*G_APP, (int)prevFPS));
+          glfwSetWindowTitle(window, make_window_title(*G_APP, (int)prevFPS).c_str());
         }
 
         glfwPollEvents();

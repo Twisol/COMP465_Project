@@ -50,8 +50,9 @@ set(SOURCE_FILES
     main.cpp
     shaders.cpp
     App.cpp
-    util/debug.cpp
+    RenderSystem.cpp
     Mesh.cpp
+    util/debug.cpp
 )
 
 add_executable(COMP465_Project ${SOURCE_FILES})
