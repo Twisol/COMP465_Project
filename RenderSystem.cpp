@@ -66,6 +66,16 @@ static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id)
   return worldMatrix;
 }
 
+RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
+  : window{window}, projectionMatrix{projectionMatrix}
+{
+  this->shader_id = create_program_from_files("shaders/vertex.glsl", "shaders/fragment.glsl");
+  if (this->shader_id == GL_NONE) {
+    // TODO: Throw an exception instead so the environment is cleaned up properly.
+    exit(1);
+  }
+}
+
 void RenderSystem::Render(GameState& state) {
   // Clear the previous render results
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

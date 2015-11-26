@@ -1,5 +1,4 @@
 #include "App.h"
-#include "shaders.h"
 
 #include <GL/glew.h>
 #include <iostream>
@@ -9,13 +8,11 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#include "RenderSystem.h"
-
 using namespace std;
 
 std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
-static std::string const WARPS[] = {"View: Unum", "View: Duo"};
 float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
+static std::string const WARPS[] = {"View: Unum", "View: Duo"};
 static double const SCALINGS[] = {
   1.00, // ACE_SPEED
   0.40, // PILOT_SPEED
@@ -56,17 +53,11 @@ double App::GetTimeScaling() const {
 
 void App::OnAcquireContext(GLFWwindow* window) {
   cout << "Running version " << VERSION
-    << " with OpenGL version " << glGetString(GL_VERSION)
-    <<  ", GLSL version " << glGetString(GL_SHADING_LANGUAGE_VERSION)
-    << "." << endl;
+       << " with OpenGL version " << glGetString(GL_VERSION)
+       << ", GLSL version " << glGetString(GL_SHADING_LANGUAGE_VERSION)
+       << "." << endl;
 
   this->window = window;
-
-  this->shader_id = create_program_from_files("shaders/vertex.glsl", "shaders/fragment.glsl");
-  if (this->shader_id == GL_NONE) {
-    // TODO: Throw an exception instead so the environment is cleaned up properly.
-    exit(1);
-  }
 
   // Prevent rendering of fragments which lie behind other fragments
   glEnable(GL_DEPTH_TEST);
@@ -92,14 +83,6 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->secundusMesh = loadMeshFromFile("models/secundus.tri");
   this->shipMesh = loadMeshFromFile("models/ship.tri");
   this->missileMesh = loadMeshFromFile("models/missile.tri");
-
-  // Transformation from camera space into clip space.
-  // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
-  //
-  // This camera can only see objects between 1 unit and 100,001 units away from it,
-  // with a 75-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
-  // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
-  this->projectionMatrix = glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 100001.0f);
 
   // Instantiate the Ruber system orbiting bodies.
   {
@@ -324,9 +307,4 @@ void App::OnTimeStep(double delta) {
           )
         );
   }
-}
-
-// Renders a frame.
-void App::OnRedraw() {
-  RenderSystem{this->window, this->shader_id, this->projectionMatrix}.Render(this->state);
 }

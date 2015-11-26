@@ -1,4 +1,5 @@
 #include "App.h"
+#include "RenderSystem.h"
 
 #include <iostream>
 #include <thread>
@@ -104,6 +105,18 @@ int main(int /*argc*/, char** /*argv*/) {
   // Note that this has to happen AFTER a GL context is made current.
   App app;
 
+  RenderSystem renderSystem{
+    window,
+
+    // Transformation from camera space into clip space.
+    // This gives a foreshortening effect, and maps all visible geometry into the volume of a unit cube.
+    //
+    // This camera can only see objects between 1 unit and 100,001 units away from it,
+    // with a 75-degree field of view (along the Y axis). The 4/3 ratio determines the field of view
+    // along the X axis, and serves to couple the viewing frustum to the (default) dimensions of the canvas.
+    glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 100001.0f),
+  };
+
   {
     G_APP = &app;
 
@@ -151,7 +164,7 @@ int main(int /*argc*/, char** /*argv*/) {
         // Note that some time may have been left unsimulated at this point.
         // We could do some fancy interpolation/extrapolation with the remainder,
         // but that's not terribly important here.
-        G_APP->OnRedraw();
+        renderSystem.Render(G_APP->state);
 
         // Interact with window
         {

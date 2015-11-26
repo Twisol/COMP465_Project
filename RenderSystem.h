@@ -15,9 +15,8 @@ public:
   // This maps all visible content onto the volume of a unit cube centered at the origin.
   glm::mat4 projectionMatrix{1.0f};
 
-  RenderSystem(GLFWwindow* window, GLuint shader_id, glm::mat4 projectionMatrix)
-    : window{window}, shader_id{shader_id}, projectionMatrix{projectionMatrix}
-  {}
+public:
+  RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix);
 
   void Render(GameState& state);
 };
