@@ -112,10 +112,14 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh}));
     state.entities.silos.insert(std::make_pair("ship", SiloComponent{9}));
 
-    state.entities.positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
-    state.entities.physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
-    state.entities.missiles.insert(std::make_pair("missile", MissileComponent{"ship", MISSILE_TARGETING, 50}));
-    state.entities.models.insert(std::make_pair("missile", ModelComponent{&this->missileMesh}));
+    state.entities.positions.insert(std::make_pair("missile: ship 9", PositionComponent{
+      "::world",
+      state.entities.positions.at("ship").translation + glm::vec3{0.0, 0.0, -40.0},
+      state.entities.positions.at("ship").orientation,
+    }));
+    state.entities.physics.insert(std::make_pair("missile: ship 9", PhysicsComponent{0.0, 0.0}));
+    state.entities.missiles.insert(std::make_pair("missile: ship 9", MissileComponent{SILO_TARGETING}));
+    state.entities.models.insert(std::make_pair("missile: ship 9", ModelComponent{&this->missileMesh}));
   }
 
   // Create some cameras

@@ -91,6 +91,7 @@ public:
           auto const rotation_axis = glm::cross(missile_at, target_direction);
 
           // If the missile isn't pointing at the target already, rotate to face it.
+          // TODO: fix this
           std::cout << "Dot: " << glm::dot(missile_at, target_direction) << std::endl;
           std::cout << "|Cross|: " << glm::length(rotation_axis) << std::endl;
           if (acosf(glm::dot(missile_at, target_direction)) <= 1) {

@@ -82,17 +82,16 @@ struct MissileComponent {
   static constexpr double const IDLE_PERIOD = 5.0;
 
   // Target to hit
-  std::string target;
+  std::string target = "";
   // Missile type
   targeting_mode targeting;
 
-  double time_to_live = 0;
+  double time_to_live = MAX_LIFETIME;
 
-  MissileComponent(std::string target, targeting_mode targeting, double time_to_live)
-    : target(target), targeting(targeting), time_to_live(time_to_live)
+  MissileComponent(targeting_mode targeting)
+    : targeting(targeting)
   {}
 };
-
 
 
 struct EntityDatabase;
