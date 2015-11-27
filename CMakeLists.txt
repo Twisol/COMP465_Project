@@ -45,7 +45,7 @@ add_definitions(-DGL_VALIDATE_SHADERS)
 
 
 ## Project configuration
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 set(SOURCE_FILES
     main.cpp
     shaders.cpp

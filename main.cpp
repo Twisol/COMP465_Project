@@ -1,5 +1,6 @@
 #include "App.h"
 #include "RenderSystem.h"
+#include "MissileSystem.h"
 
 #include <iostream>
 #include <thread>
@@ -117,6 +118,8 @@ int main(int /*argc*/, char** /*argv*/) {
     glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 1.0f, 100001.0f),
   };
 
+  MissileSystem missileSystem{};
+
   {
     G_APP = &app;
 
@@ -156,6 +159,7 @@ int main(int /*argc*/, char** /*argv*/) {
           while (accumulator >= dt) {
             accumulator -= dt;
             G_APP->OnTimeStep(dt);
+            missileSystem.Update(G_APP->state, dt);
           }
         }
 

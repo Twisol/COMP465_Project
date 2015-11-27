@@ -6,8 +6,8 @@
 
 #include "GameState.h"
 
-struct RenderSystem {
-public:
+class RenderSystem {
+private:
   GLFWwindow* window = nullptr;
   GLuint shader_id = GL_NONE;  // The ID of the current shader program.
 

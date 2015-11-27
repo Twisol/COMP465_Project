@@ -6,6 +6,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 #include "Mesh.h"
 
@@ -75,10 +76,10 @@ struct SiloComponent {
 };
 
 struct MissileComponent {
-  // time to death in msec
-  static constexpr double const MAX_LIFETIME = 50000;
-  // time before targeting behavior in msec
-  static constexpr double const IDLE_PERIOD = 5000;
+  // time to death in seconds
+  static constexpr double const MAX_LIFETIME = 50.0;
+  // time before targeting behavior in seconds
+  static constexpr double const IDLE_PERIOD = 5.0;
 
   // Target to hit
   std::string target;
@@ -96,11 +97,10 @@ struct MissileComponent {
 
 struct EntityDatabase;
 
-template<typename Entity>
+template<typename T>
 struct EntityQuery {
-  static bool Query(EntityDatabase& /*entities*/, std::string /*id*/, Entity* const /*entity*/) {
-    return false;
-  }
+  // typedef T Entity;
+  // static bool Query(EntityDatabase& /*entities*/, std::string /*id*/, Entity* const /*entity*/);
 };
 
 struct EntityDatabase {
@@ -109,10 +109,12 @@ struct EntityDatabase {
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
   std::unordered_map<std::string, SiloComponent> silos;
+  std::unordered_map<std::string, MissileComponent> missiles;
 
   template<typename T>
   class Iterator {
     using inner_iterator = std::unordered_map<std::string, PositionComponent>::iterator;
+    using value_type = typename EntityQuery<T>::Entity;
 
     EntityDatabase& entities;
     inner_iterator itr;
@@ -121,13 +123,22 @@ struct EntityDatabase {
   public:
     Iterator(EntityDatabase& entities, inner_iterator itr, inner_iterator end)
       : entities{entities}, itr{itr}, end{end}
-    {}
+    {
+      // Make sure `itr` either points to a matching entity or to `end`
+      value_type entity;
+      while (this->itr != end) {
+        if (EntityQuery<T>::Query(entities, this->itr->first, &entity)) {
+          break;
+        }
+        ++this->itr;
+      }
+    }
 
-    typename EntityQuery<T>::Entity operator*() {
-      typename EntityQuery<T>::Entity entity;
+    value_type operator*() {
+      value_type entity;
       while (itr != end) {
         if (!EntityQuery<T>::Query(entities, itr->first, &entity)) {
-          itr++;
+          ++itr;
         } else {
           return entity;
         }
@@ -137,14 +148,14 @@ struct EntityDatabase {
     }
 
     Iterator<T>& operator++() {
-      itr++;
+      ++itr;
 
-      typename EntityQuery<T>::Entity entity;
+      value_type entity;
       while (itr != end) {
         if (EntityQuery<T>::Query(entities, itr->first, &entity)) {
           break;
         }
-        itr++;
+        ++itr;
       }
 
       return *this;
@@ -152,6 +163,25 @@ struct EntityDatabase {
 
     bool operator!=(Iterator<T> const& other) {
       return itr != other.itr;
+    }
+
+    void remove() {
+      entities.physics.erase(itr->first);
+      entities.models.erase(itr->first);
+      entities.cameras.erase(itr->first);
+      entities.silos.erase(itr->first);
+      entities.missiles.erase(itr->first);
+
+      itr = entities.positions.erase(itr);
+
+      // Make sure `itr` either points to a matching entity or to `end`
+      value_type entity;
+      while (itr != end) {
+        if (EntityQuery<T>::Query(entities, itr->first, &entity)) {
+          break;
+        }
+        ++itr;
+      }
     }
   };
 

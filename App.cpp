@@ -114,6 +114,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     state.entities.positions.insert(std::make_pair("missile", PositionComponent{"::world", glm::vec3{4900.0f, 1000.0f, 4850.0f}}));
     state.entities.physics.insert(std::make_pair("missile", PhysicsComponent{0.0, 0.0}));
+    state.entities.missiles.insert(std::make_pair("missile", MissileComponent{"ship", MISSILE_TARGETING, 50}));
     state.entities.models.insert(std::make_pair("missile", ModelComponent{&this->missileMesh}));
   }
 
