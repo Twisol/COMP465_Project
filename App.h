@@ -43,6 +43,7 @@ private:
   Mesh duoMesh;
   Mesh primusMesh;
   Mesh secundusMesh;
+  Mesh siloMesh;
   Mesh shipMesh;
   Mesh missileMesh;
 

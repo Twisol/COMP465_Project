@@ -87,6 +87,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->duoMesh = loadMeshFromFile("models/duo.tri");
   this->primusMesh = loadMeshFromFile("models/primus.tri");
   this->secundusMesh = loadMeshFromFile("models/secundus.tri");
+  this->siloMesh = loadMeshFromFile("models/silo.tri");
   this->shipMesh = loadMeshFromFile("models/ship.tri");
   this->missileMesh = loadMeshFromFile("models/missile.tri");
 
@@ -98,7 +99,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     state.entities.models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh}));
-    state.entities.silos.insert(std::make_pair("Unum", SiloComponent{SILO_COUNT, SILO_RANGE}));
+
+    state.entities.positions.insert(std::make_pair("Unum Silo", PositionComponent{"Unum", glm::vec3{0.0f, 250.0f, 0.0f}}));
+    state.entities.models.insert(std::make_pair("Unum Silo", ModelComponent{&this->siloMesh}));
+    state.entities.silos.insert(std::make_pair("Unum Silo", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
@@ -111,7 +115,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Secundus", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     state.entities.models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh}));
-    state.entities.silos.insert(std::make_pair("Secundus", SiloComponent{SILO_COUNT, SILO_RANGE}));
+
+    state.entities.positions.insert(std::make_pair("Secundus Silo", PositionComponent{"Secundus", glm::vec3{0.0f, 200.0f, 0.0f}}));
+    state.entities.models.insert(std::make_pair("Secundus Silo", ModelComponent{&this->siloMesh}));
+    state.entities.silos.insert(std::make_pair("Secundus Silo", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     state.entities.physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));

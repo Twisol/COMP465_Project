@@ -72,8 +72,8 @@ void error_callback(int /*error*/, char const* description) {
 std::string make_window_title(App const& app, int framerate) {
   std::stringstream builder;
   builder << "Warbird: " << app.state.entities.silos.at("ship").missiles
-          << " | Unum: " << app.state.entities.silos.at("Unum").missiles
-          << " | Secundus: " << app.state.entities.silos.at("Secundus").missiles
+          << " | Unum: " << app.state.entities.silos.at("Unum Silo").missiles
+          << " | Secundus: " << app.state.entities.silos.at("Secundus Silo").missiles
           << " | U/S: " << (1000.0 * app.GetTimeScaling()) / 40.0
           << " | F/S: " << framerate
           << " | " << CAMERAS[app.state.active_camera]

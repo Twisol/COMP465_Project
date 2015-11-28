@@ -35,17 +35,17 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     std::string newMissile = tmpMissile.str();
     switch (targeting) {
       case SILO_TARGETING : {
-        offset = glm::vec3{0.0f, 0.0f, -40.0f};
         orientation = state.entities.positions.at(owner).orientation;
+        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 0.0f, -75.0f};
       } break;
 
       case SHIP_TARGETING : {
-        offset = glm::vec3{0.0f, 150.0f, 0.0f};
         orientation = glm::normalize(glm::rotate(
           state.entities.positions.at(owner).orientation,
           glm::radians(90.0f),
           glm::vec3{1.0f, 0.0f, 0.0f}
         ));
+        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 50.0f, 0.0f};
       } break;
 
     }
