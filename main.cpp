@@ -160,6 +160,7 @@ int main(int /*argc*/, char** /*argv*/) {
             accumulator -= dt;
             G_APP->OnTimeStep(dt);
             missileSystem.Update(G_APP->state, dt);
+            // TODO: call siloSystem.Update();
           }
         }
 

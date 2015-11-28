@@ -71,10 +71,11 @@ public:
       auto entity = *itr;
 
       entity.missile->time_to_live -= delta;
-      std::cout << entity.missile->time_to_live << std::endl;
+      std::cout << entity.id << ": " << entity.missile->time_to_live << std::endl;
 
       if (entity.missile->time_to_live <= 0) {
       // It's dead now
+        state.entities.silos.at(entity.missile->owner).current_missile = "";
         itr.remove();
         continue;
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {

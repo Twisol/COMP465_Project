@@ -12,7 +12,7 @@
 
 enum targeting_mode {
   SILO_TARGETING,
-  MISSILE_TARGETING,
+  SHIP_TARGETING,
 };
 
 struct PhysicsComponent {
@@ -65,13 +65,15 @@ struct CameraComponent {
 };
 
 struct SiloComponent {
+  // silo's auto-fire detection range (0.0 for ship which does not auto-fire)
+  double range = 0.0;
   // A store of missiles per site
   int missiles = 0;
   // Name of currently-fired missile
   std::string current_missile = "";
 
-  SiloComponent(int missiles)
-    : missiles{missiles}
+  SiloComponent(int missiles, double range)
+    : range{range}, missiles{missiles}
   {}
 };
 
@@ -81,6 +83,8 @@ struct MissileComponent {
   // time before targeting behavior in seconds
   static constexpr double const IDLE_PERIOD = 5.0;
 
+  // Missile's "Owner"
+  std::string owner = "";
   // Target to hit
   std::string target = "";
   // Missile type
@@ -88,8 +92,8 @@ struct MissileComponent {
 
   double time_to_live = MAX_LIFETIME;
 
-  MissileComponent(targeting_mode targeting)
-    : targeting(targeting)
+  MissileComponent(std::string owner, targeting_mode targeting)
+    : owner(owner), targeting(targeting)
   {}
 };
 

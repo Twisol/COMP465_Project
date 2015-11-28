@@ -7,8 +7,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <sstream>
 
 using namespace std;
+
+static double const SILO_RANGE = 5000.0;
+static double const SHIP_RANGE = 0.0;
+static int const SILO_COUNT = 5;
+static int const SHIP_COUNT = 10;
 
 std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
 float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
@@ -92,7 +98,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     state.entities.models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh}));
-    state.entities.silos.insert(std::make_pair("Unum", SiloComponent{5}));
+    state.entities.silos.insert(std::make_pair("Unum", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
@@ -105,21 +111,13 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}}));
     state.entities.physics.insert(std::make_pair("Secundus", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     state.entities.models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh}));
-    state.entities.silos.insert(std::make_pair("Secundus", SiloComponent{5}));
+    state.entities.silos.insert(std::make_pair("Secundus", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     state.entities.physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
     state.entities.models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh}));
-    state.entities.silos.insert(std::make_pair("ship", SiloComponent{9}));
+    state.entities.silos.insert(std::make_pair("ship", SiloComponent{SHIP_COUNT, SHIP_RANGE}));
 
-    state.entities.positions.insert(std::make_pair("missile: ship 9", PositionComponent{
-      "::world",
-      state.entities.positions.at("ship").translation + glm::vec3{0.0, 0.0, -40.0},
-      state.entities.positions.at("ship").orientation,
-    }));
-    state.entities.physics.insert(std::make_pair("missile: ship 9", PhysicsComponent{0.0, 0.0}));
-    state.entities.missiles.insert(std::make_pair("missile: ship 9", MissileComponent{SILO_TARGETING}));
-    state.entities.models.insert(std::make_pair("missile: ship 9", ModelComponent{&this->missileMesh}));
   }
 
   // Create some cameras
@@ -188,6 +186,35 @@ glm::mat4 App::GetWorldMatrix(std::string const& id) const {
   return worldMatrix;
 }
 
+void FireMissile(GameState& state, Mesh* missileMesh) {
+  bool canFire = true;
+  std::string newMissile;
+
+  if (state.entities.silos.at("ship").current_missile != "") {
+    canFire = false;
+  } else if (state.entities.silos.at("ship").missiles <= 0) {
+    canFire = false;
+  } else {
+    std::stringstream tmpMissile;
+    tmpMissile << "missile: ship " << state.entities.silos.at("ship").missiles;
+    newMissile = tmpMissile.str();
+  }
+
+  if (canFire) {
+    state.entities.silos.at("ship").current_missile = newMissile;
+    state.entities.silos.at("ship").missiles -= 1;
+    // instantiate new missile
+    state.entities.positions.insert(std::make_pair(newMissile, PositionComponent{
+      "::world",
+      state.entities.positions.at("ship").translation + glm::vec3{0.0, 0.0, -40.0},
+      state.entities.positions.at("ship").orientation,
+    }));
+    state.entities.physics.insert(std::make_pair(newMissile, PhysicsComponent{0.0, 0.0}));
+    state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{"ship", SILO_TARGETING}));
+    state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
+  }
+}
+
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action, int mods) {
   // This is a workaround for a bug in GLFW which prevents modifier key releases
@@ -213,6 +240,8 @@ void App::OnKeyEvent(int key, int action, int mods) {
     this->state.active_warp = (this->state.active_warp + 1) % (sizeof(WARPS) / sizeof(WARPS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
     this->state.gravity_enabled = !this->state.gravity_enabled;
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_F) {
+    FireMissile(state, &this->missileMesh);
   }
 }
 
