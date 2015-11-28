@@ -1,4 +1,5 @@
 #include "App.h"
+#include "SiloSystem.h"
 
 #include <GL/glew.h>
 #include <iostream>
@@ -7,7 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/rotate_vector.hpp>
-#include <sstream>
 
 using namespace std;
 
@@ -186,35 +186,6 @@ glm::mat4 App::GetWorldMatrix(std::string const& id) const {
   return worldMatrix;
 }
 
-void FireMissile(GameState& state, Mesh* missileMesh) {
-  bool canFire = true;
-  std::string newMissile;
-
-  if (state.entities.silos.at("ship").current_missile != "") {
-    canFire = false;
-  } else if (state.entities.silos.at("ship").missiles <= 0) {
-    canFire = false;
-  } else {
-    std::stringstream tmpMissile;
-    tmpMissile << "missile: ship " << state.entities.silos.at("ship").missiles;
-    newMissile = tmpMissile.str();
-  }
-
-  if (canFire) {
-    state.entities.silos.at("ship").current_missile = newMissile;
-    state.entities.silos.at("ship").missiles -= 1;
-    // instantiate new missile
-    state.entities.positions.insert(std::make_pair(newMissile, PositionComponent{
-      "::world",
-      state.entities.positions.at("ship").translation + glm::vec3{0.0, 0.0, -40.0},
-      state.entities.positions.at("ship").orientation,
-    }));
-    state.entities.physics.insert(std::make_pair(newMissile, PhysicsComponent{0.0, 0.0}));
-    state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{"ship", SILO_TARGETING}));
-    state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
-  }
-}
-
 // Processes keyboard input.
 void App::OnKeyEvent(int key, int action, int mods) {
   // This is a workaround for a bug in GLFW which prevents modifier key releases
@@ -241,10 +212,9 @@ void App::OnKeyEvent(int key, int action, int mods) {
   } else if (action == GLFW_PRESS && key == GLFW_KEY_G) {
     this->state.gravity_enabled = !this->state.gravity_enabled;
   } else if (action == GLFW_PRESS && key == GLFW_KEY_F) {
-    FireMissile(state, &this->missileMesh);
+    SiloSystem::FireMissile(state, "ship", SILO_TARGETING, &this->missileMesh);
   }
 }
-
 
 static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotation, glm::vec3* const translation) {
   if (glfwGetKey(window, GLFW_KEY_UP) && !g_IS_MODDED) {

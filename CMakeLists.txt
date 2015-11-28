@@ -51,6 +51,7 @@ set(SOURCE_FILES
     shaders.cpp
     App.cpp
     RenderSystem.cpp
+    SiloSystem.cpp
     Mesh.cpp
     util/debug.cpp
 )
