@@ -1,7 +1,22 @@
 #include "SiloSystem.h"
 #include <glm/gtc/quaternion.hpp>
 
-void SiloSystem::Update(GameState& /*state*/, double /*delta*/) {}
+template<>
+struct EntityQuery<SiloComponent> {
+  typedef SiloComponent* Entity;
+
+  static bool Query(EntityDatabase& entities, std::string id, SiloComponent** const entity) {
+    auto siloItr = entities.silos.find(id);
+
+    if (siloItr == entities.silos.end()) {
+      return false;
+    }
+
+    *entity = &siloItr->second;
+    return true;
+  }
+};
+
 
 static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id) {
   PositionComponent const& position = entities.positions.at(id);
@@ -60,4 +75,8 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{owner, targeting}));
     state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
   }
+}
+
+void Update(GameState& /*state*/, double /*delta*/) {
+
 }

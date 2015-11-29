@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <cmath>
 
+static float const MISSILE_SPEED = 125.0f;
+
 struct DirectableEntity {
   std::string id;
   PositionComponent* position;
@@ -81,34 +83,36 @@ public:
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
       // Aim towards the target, if any
         if (entity.missile->target != "") {
-          PositionComponent* target = nullptr;
-          if (EntityQuery<PositionComponent>::Query(state.entities, entity.missile->target, &target)) {
-            // Find the world-relative position of the entity
-            auto const target_position = glm::vec3{GetWorldMatrix(state.entities, entity.missile->target) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
-            auto const missile_position = glm::vec3{GetWorldMatrix(state.entities, entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+          // TODO: Locate nearest target based on `targeting` attribute
+          entity.missile->target = "ship"; // DEBUG DEBUG DEBUG
+        }
 
-            // Calculate the axis of rotation for the missile
-            auto const target_direction = glm::normalize(target_position - missile_position);
-            auto const missile_at = glm::normalize(entity.position->orientation * glm::vec3{0.0f, 0.0f, -1.0f});
-            auto const rotation_axis = glm::cross(missile_at, target_direction);
+        PositionComponent* target = nullptr;
+        if (EntityQuery<PositionComponent>::Query(state.entities, entity.missile->target, &target)) {
+          // Find the world-relative position of the entity
+          auto const target_position = glm::vec3{GetWorldMatrix(state.entities, entity.missile->target) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+          auto const missile_position = glm::vec3{GetWorldMatrix(state.entities, entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 
-            // If the missile isn't pointing at the target already, rotate to face it.
-            // TODO: fix this
-            std::cout << "Dot: " << glm::dot(missile_at, target_direction) << std::endl;
-            std::cout << "|Cross|: " << glm::length(rotation_axis) << std::endl;
-            if (acosf(glm::dot(missile_at, target_direction)) <= 1) {
-              entity.position->orientation =
-                glm::normalize(glm::rotate(
-                  entity.position->orientation,
-                  acosf(glm::dot(missile_at, target_direction)),
-                  rotation_axis
-                ));
-            }
-          } else {
-            entity.missile->target = "";
+          // Calculate the axis of rotation for the missile
+          auto const target_direction = glm::normalize(target_position - missile_position);
+          auto const missile_at = glm::normalize(entity.position->orientation * glm::vec3{0.0f, 0.0f, -1.0f});
+          auto const rotation_axis = glm::cross(missile_at, target_direction);
+
+          // If the missile isn't pointing at the target already, rotate to face it.
+          if (fabs(glm::dot(missile_at, target_direction)) < 1) {
+            entity.position->orientation =
+              glm::normalize(glm::rotate(
+                entity.position->orientation,
+                acosf(glm::dot(missile_at, target_direction)),
+                rotation_axis
+              ));
           }
+        } else {
+          entity.missile->target = "";
         }
       }
+
+      entity.position->translation += entity.position->orientation * (((float)delta)*glm::vec3{0.0f, 0.0f, -MISSILE_SPEED});
 
       ++itr;
     }
