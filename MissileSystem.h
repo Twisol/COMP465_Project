@@ -82,7 +82,7 @@ public:
         continue;
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
       // Aim towards the target, if any
-        if (entity.missile->target != "") {
+        if (entity.missile->target == "") {
           // TODO: Locate nearest target based on `targeting` attribute
           entity.missile->target = "ship"; // DEBUG DEBUG DEBUG
         }
