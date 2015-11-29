@@ -79,9 +79,9 @@ struct SiloComponent {
 
 struct MissileComponent {
   // time to death in seconds
-  static constexpr double const MAX_LIFETIME = 50.0;
+  static constexpr double const MAX_LIFETIME = 80.0;
   // time before targeting behavior in seconds
-  static constexpr double const IDLE_PERIOD = 5.0;
+  static constexpr double const IDLE_PERIOD = 8.0;
 
   // Missile's "Owner"
   std::string owner = "";
