@@ -4,8 +4,6 @@
 #include "Mesh.h"
 #include <sstream>
 
-static float const DETECTION_RANGE = 5000.0f;
-
 class SiloSystem {
 private:
    Mesh* missileMesh;

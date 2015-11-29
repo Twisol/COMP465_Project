@@ -66,6 +66,12 @@ protected:
     return worldMatrix;
   }
 
+  static float GetDistance(EntityDatabase& entities, std::string const& id1, std::string const& id2) {
+    auto const pos1 = glm::vec3{GetWorldMatrix(entities, id1) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+    auto const pos2 = glm::vec3{GetWorldMatrix(entities, id2) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+    return glm::length(pos1 - pos2);
+  }
+
 public:
   void Update(GameState& state, double delta) {
     auto view = state.entities.Query<DirectableEntity>();
@@ -81,10 +87,24 @@ public:
         itr.remove();
         continue;
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
-      // Aim towards the target, if any
+      // Aim towards the target (if target unassigned, assign target)
         if (entity.missile->target == "") {
-          // TODO: Locate nearest target based on `targeting` attribute
-          entity.missile->target = "ship"; // DEBUG DEBUG DEBUG
+          if (entity.missile->targeting == SHIP_TARGETING) {
+            if (GetDistance(state.entities, entity.id, "ship") < entity.missile->range) {
+              entity.missile->target = "ship";
+            }
+          } else if (entity.missile->targeting == SILO_TARGETING) {
+            if (GetDistance(state.entities, entity.id, "Unum Silo") < entity.missile->range) {
+              entity.missile->target = "Unum Silo";
+              if (GetDistance(state.entities, entity.id, "Secundus Silo") < GetDistance(state.entities, entity.id, "Unum Silo")) {
+                entity.missile->target = "Secundus Silo";
+              }
+            } else if (GetDistance(state.entities, entity.id, "Secundus Silo") < entity.missile->range) {
+              entity.missile->target = "Secundus Silo";
+            }
+
+            entity.missile->target = ((bool)state.active_warp ? "Secundus Silo" : "Unum Silo"); // DEBUG DEBUG DEBUG
+          }
         }
 
         PositionComponent* target = nullptr;

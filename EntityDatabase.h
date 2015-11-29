@@ -86,11 +86,13 @@ struct MissileComponent {
   std::string target = "";
   // Missile type
   targeting_mode targeting;
+  // Missile's range
+  double range = 0.0;
 
   double time_to_live = MAX_LIFETIME;
 
-  MissileComponent(std::string owner, targeting_mode targeting)
-    : owner(owner), targeting(targeting)
+  MissileComponent(std::string owner, targeting_mode targeting, double range)
+    : owner(owner), targeting(targeting), range(range)
   {}
 };
 

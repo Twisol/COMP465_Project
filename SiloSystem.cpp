@@ -81,7 +81,11 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
       glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}} + offset,
       orientation,
     }));
-    state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{owner, targeting}));
+    state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{
+      owner,
+      targeting,
+      state.entities.silos.at(owner).range
+    }));
     state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
   }
 }
@@ -95,7 +99,7 @@ void SiloSystem::Update(GameState& state, double /*delta*/) {
       auto const ship_position = glm::vec3{GetWorldMatrix(state.entities, "ship") * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
       double ship_distance = glm::length(silo_position - ship_position);
       // if the silo is within range, attempt to fire a missile
-      if (ship_distance <= DETECTION_RANGE) {
+      if (ship_distance <= entity.silo->range) {
         FireMissile(state, entity.id, SHIP_TARGETING, this->missileMesh);
       }
     }
