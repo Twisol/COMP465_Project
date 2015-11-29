@@ -46,7 +46,10 @@ static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id)
 void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode targeting, Mesh* missileMesh) {
   bool canFire = true;
 
-  if (state.entities.silos.at(owner).current_missile != "" || state.entities.silos.at(owner).missiles <= 0) {
+  if (state.entities.silos.at(owner).destroyed
+    || state.entities.silos.at(owner).missiles <= 0
+    || state.entities.silos.at(owner).current_missile != "")
+  {
     canFire = false;
   }
 

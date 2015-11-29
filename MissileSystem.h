@@ -93,7 +93,7 @@ public:
             if (GetDistance(state.entities, entity.id, "ship") < entity.missile->range) {
               entity.missile->target = "ship";
             }
-          } else if (entity.missile->targeting == SILO_TARGETING) {
+          } else if (entity.missile->targeting == SILO_TARGETING) { // TODO: Trap for destroyed silos -- ignore them
             if (GetDistance(state.entities, entity.id, "Unum Silo") < entity.missile->range) {
               entity.missile->target = "Unum Silo";
               if (GetDistance(state.entities, entity.id, "Secundus Silo") < GetDistance(state.entities, entity.id, "Unum Silo")) {
