@@ -1,18 +1,24 @@
 #include "SiloSystem.h"
 #include <glm/gtc/quaternion.hpp>
 
-template<>
-struct EntityQuery<SiloComponent> {
-  typedef SiloComponent* Entity;
+struct FiringEntity {
+  std::string id;
+  SiloComponent* silo;
+};
 
-  static bool Query(EntityDatabase& entities, std::string id, SiloComponent** const entity) {
+template<>
+struct EntityQuery<FiringEntity> {
+  typedef FiringEntity Entity;
+
+  static bool Query(EntityDatabase& entities, std::string id, FiringEntity* const entity) {
     auto siloItr = entities.silos.find(id);
 
     if (siloItr == entities.silos.end()) {
       return false;
     }
 
-    *entity = &siloItr->second;
+    entity->id = id;
+    entity->silo = &siloItr->second;
     return true;
   }
 };
