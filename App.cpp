@@ -17,7 +17,7 @@ static int const SILO_COUNT = 5;
 static int const SHIP_COUNT = 10;
 
 std::string const CAMERAS[] = {"View: Front", "View: Top", "View: Unum", "View: Duo", "View: Ship"};
-float const THRUSTS[] = {10.0f, 50.0f, 200.0f};
+float const THRUSTS[] = {250.0f, 1250.0f, 5000.0f};
 static std::string const WARPS[] = {"View: Unum", "View: Duo"};
 static double const SCALINGS[] = {
   1.00, // ACE_SPEED
@@ -121,7 +121,6 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.silos.insert(std::make_pair("Secundus Silo", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
-    state.entities.physics.insert(std::make_pair("ship", PhysicsComponent{0.0, 0.0}));
     state.entities.models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh}));
     state.entities.silos.insert(std::make_pair("ship", SiloComponent{SHIP_COUNT, SHIP_RANGE}));
 

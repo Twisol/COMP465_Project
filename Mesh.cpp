@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
+#include <iostream>
 
 static bool readTriFile(char const* tri_path, std::vector<GLfloat>* const tri_vector, float* const radius);
 static bool readTriLine(FILE* f, std::vector<GLfloat>* const tri_vector, float* const radius);
@@ -24,6 +25,8 @@ Mesh loadMeshFromFile(char const* tri_path) {
   mesh.primitiveType = GL_TRIANGLES;
   mesh.primitiveCount = (GLsizei)(tri_vector.size()/7);
   mesh.boundingRadius = radius;
+
+  // std::cout << tri_path << " - " << radius << std::endl;
 
   // Set attribute slot 0 to read the first 3 floats out of every set of 10 floats in the model.
   // In other words, slot 0 refers to the position data.
