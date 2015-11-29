@@ -62,6 +62,8 @@ struct CameraComponent {
 };
 
 struct SiloComponent {
+  // silo's destroyed flag
+  bool destroyed = false;
   // silo's auto-fire detection range (0.0 for ship which does not auto-fire)
   double range = 0.0;
   // A store of missiles per site
