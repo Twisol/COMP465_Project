@@ -57,7 +57,6 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
       glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}} + offset,
       orientation,
     }));
-    state.entities.physics.insert(std::make_pair(newMissile, PhysicsComponent{0.0, 0.0}));
     state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{owner, targeting}));
     state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
   }

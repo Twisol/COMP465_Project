@@ -15,17 +15,14 @@ enum targeting_mode {
   SHIP_TARGETING,
 };
 
-struct PhysicsComponent {
+struct OrbitComponent {
   // Angular velocity relative to the parent.
   double orbital_velocity = 0.0;
 
   // Angular velocity relative to the entity's center.
   glm::vec3 angular_velocity{0.0f, 0.0f, 0.0f};
 
-  // Translational velocity relative to the entity
-  glm::vec3 translational_velocity{0.0f, 0.0f, 0.0f};
-
-  PhysicsComponent(double orbital_velocity, float yaw_velocity)
+  OrbitComponent(double orbital_velocity, float yaw_velocity)
     : orbital_velocity{orbital_velocity}, angular_velocity{0.0f, yaw_velocity, 0.0f}
   {}
 };
@@ -108,7 +105,7 @@ struct EntityQuery {
 
 struct EntityDatabase {
   std::unordered_map<std::string, PositionComponent> positions;
-  std::unordered_map<std::string, PhysicsComponent> physics;
+  std::unordered_map<std::string, OrbitComponent> orbits;
   std::unordered_map<std::string, ModelComponent> models;
   std::unordered_map<std::string, CameraComponent> cameras;
   std::unordered_map<std::string, SiloComponent> silos;
@@ -169,7 +166,7 @@ struct EntityDatabase {
     }
 
     void remove() {
-      entities.physics.erase(itr->first);
+      entities.orbits.erase(itr->first);
       entities.models.erase(itr->first);
       entities.cameras.erase(itr->first);
       entities.silos.erase(itr->first);

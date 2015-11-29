@@ -26,27 +26,27 @@ static double const SCALINGS[] = {
   0.08, // DEBUG_SPEED
 };
 
-struct PhysicsEntity {
+struct OrbitalEntity {
   std::string id;
   PositionComponent* position;
-  PhysicsComponent* physics;
+  OrbitComponent* orbit;
 };
 
 template<>
-struct EntityQuery<PhysicsEntity> {
-  typedef PhysicsEntity Entity;
+struct EntityQuery<OrbitalEntity> {
+  typedef OrbitalEntity Entity;
 
-  static bool Query(EntityDatabase& entities, std::string id, PhysicsEntity* const entity) {
+  static bool Query(EntityDatabase& entities, std::string id, OrbitalEntity* const entity) {
     auto posItr = entities.positions.find(id);
-    auto physicsItr = entities.physics.find(id);
+    auto orbitItr = entities.orbits.find(id);
 
-    if (posItr == entities.positions.end() || physicsItr == entities.physics.end()) {
+    if (posItr == entities.positions.end() || orbitItr == entities.orbits.end()) {
       return false;
     }
 
     entity->id = id;
     entity->position = &posItr->second;
-    entity->physics = &physicsItr->second;
+    entity->orbit = &orbitItr->second;
     return true;
   }
 };
@@ -97,7 +97,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.models.insert(std::make_pair("Ruber", ModelComponent{&this->ruberMesh}));
 
     state.entities.positions.insert(std::make_pair("Unum", PositionComponent{"Ruber", glm::vec3{4000.0f, 0.0f, 0.0f}}));
-    state.entities.physics.insert(std::make_pair("Unum", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
+    state.entities.orbits.insert(std::make_pair("Unum", OrbitComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     state.entities.models.insert(std::make_pair("Unum", ModelComponent{&this->unumMesh}));
 
     state.entities.positions.insert(std::make_pair("Unum Silo", PositionComponent{"Unum", glm::vec3{0.0f, 250.0f, 0.0f}}));
@@ -105,15 +105,15 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.silos.insert(std::make_pair("Unum Silo", SiloComponent{SILO_COUNT, SILO_RANGE}));
 
     state.entities.positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
-    state.entities.physics.insert(std::make_pair("Duo", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
+    state.entities.orbits.insert(std::make_pair("Duo", OrbitComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     state.entities.models.insert(std::make_pair("Duo", ModelComponent{&this->duoMesh}));
 
     state.entities.positions.insert(std::make_pair("Primus", PositionComponent{"Duo", glm::vec3{900.0f, 0.0f, 0.0f}}));
-    state.entities.physics.insert(std::make_pair("Primus", PhysicsComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
+    state.entities.orbits.insert(std::make_pair("Primus", OrbitComponent{2.0*M_PI/63.0, 2.0*M_PI/63.0}));
     state.entities.models.insert(std::make_pair("Primus", ModelComponent{&this->primusMesh}));
 
     state.entities.positions.insert(std::make_pair("Secundus", PositionComponent{"Duo", glm::vec3{1750.0f, 0.0f, 0.0f}}));
-    state.entities.physics.insert(std::make_pair("Secundus", PhysicsComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
+    state.entities.orbits.insert(std::make_pair("Secundus", OrbitComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
     state.entities.models.insert(std::make_pair("Secundus", ModelComponent{&this->secundusMesh}));
 
     state.entities.positions.insert(std::make_pair("Secundus Silo", PositionComponent{"Secundus", glm::vec3{0.0f, 200.0f, 0.0f}}));
@@ -123,7 +123,6 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     state.entities.models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh}));
     state.entities.silos.insert(std::make_pair("ship", SiloComponent{SHIP_COUNT, SHIP_RANGE}));
-
   }
 
   // Create some cameras
@@ -295,26 +294,23 @@ void App::OnTimeStep(double delta) {
     }
   }
 
-  // Update all entities based on their physical motion
-  for (auto entity : state.entities.Query<PhysicsEntity>()) {
+  // Update all orbiting bodies
+  for (auto entity : state.entities.Query<OrbitalEntity>()) {
     // Rotate the entity
-    if (glm::length(entity.physics->angular_velocity) != 0) {
+    if (glm::length(entity.orbit->angular_velocity) != 0) {
       entity.position->orientation =
           glm::normalize(glm::rotate(
             entity.position->orientation,
-            glm::length(entity.physics->angular_velocity * (float)delta),
-            entity.physics->angular_velocity
+            glm::length(entity.orbit->angular_velocity * (float)delta),
+            entity.orbit->angular_velocity
           ));
     }
 
     // Translate the entity
-    entity.position->translation =
-        ( entity.physics->translational_velocity * (float)delta
-        + glm::rotate(
-            entity.position->translation,
-            (float)(entity.physics->orbital_velocity * delta),
-            glm::vec3{0.0f, 1.0f, 0.0f}
-          )
-        );
+    entity.position->translation = glm::rotate(
+      entity.position->translation,
+      (float)(entity.orbit->orbital_velocity * delta),
+      glm::vec3{0.0f, 1.0f, 0.0f}
+    );
   }
 }
