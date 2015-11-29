@@ -1,6 +1,7 @@
 #include "App.h"
 #include "RenderSystem.h"
 #include "MissileSystem.h"
+#include "SiloSystem.h"
 
 #include <iostream>
 #include <thread>
@@ -119,6 +120,7 @@ int main(int /*argc*/, char** /*argv*/) {
   };
 
   MissileSystem missileSystem{};
+  SiloSystem siloSystem{&app.missileMesh};
 
   {
     G_APP = &app;
@@ -160,7 +162,7 @@ int main(int /*argc*/, char** /*argv*/) {
             accumulator -= dt;
             G_APP->OnTimeStep(dt);
             missileSystem.Update(G_APP->state, dt);
-            // TODO: call siloSystem.Update();
+            siloSystem.Update(G_APP->state, dt);
           }
         }
 

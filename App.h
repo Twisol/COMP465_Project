@@ -37,6 +37,7 @@ protected:
 private:
   GLFWwindow* window = nullptr;  // The GLFW window for this app
 
+public:
   Mesh debugMesh;  // A mesh meant for testing and debugging.
   Mesh ruberMesh;
   Mesh unumMesh;
@@ -47,6 +48,5 @@ private:
   Mesh shipMesh;
   Mesh missileMesh;
 
-public:
   GameState state;
 };
