@@ -104,6 +104,13 @@ void RenderSystem::Render(GameState& state) {
 
       GLint const normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
       glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3{glm::inverseTranspose(worldMatrix)}));
+
+      GLint const emissivityLocation = glGetUniformLocation(this->shader_id, "v_emissivity");
+      if (entity.id == "Ruber") {
+        glUniform4f(emissivityLocation, 0.5f, 0.5f, 0.5f, 1.0f);
+      } else {
+        glUniform4f(emissivityLocation, 0.0f, 0.0f, 0.0f, 1.0f);
+      }
     }
 
     // Render the instance's geometry
