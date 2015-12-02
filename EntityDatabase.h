@@ -71,8 +71,11 @@ struct SiloComponent {
   // Name of currently-fired missile
   std::string current_missile = "";
 
-  SiloComponent(int missiles, double range)
-    : range{range}, missiles{missiles}
+  // generated missiles' targeting range
+  double missile_range = 0.0;
+
+  SiloComponent(int missiles, double range, double missile_range)
+    : range{range}, missiles{missiles}, missile_range{missile_range}
   {}
 };
 

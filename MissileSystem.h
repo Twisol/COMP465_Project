@@ -89,22 +89,37 @@ public:
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
       // Aim towards the target (if target unassigned, assign target)
         if (entity.missile->target == "") {
-          if (entity.missile->targeting == SHIP_TARGETING) {
-            if (GetDistance(state.entities, entity.id, "ship") < entity.missile->range) {
-              entity.missile->target = "ship";
-            }
-          } else if (entity.missile->targeting == SILO_TARGETING) { // TODO: Trap for destroyed silos -- ignore them
-            if (GetDistance(state.entities, entity.id, "Unum Silo") < entity.missile->range) {
-              entity.missile->target = "Unum Silo";
-              if (GetDistance(state.entities, entity.id, "Secundus Silo") < GetDistance(state.entities, entity.id, "Unum Silo")) {
-                entity.missile->target = "Secundus Silo";
-              }
-            } else if (GetDistance(state.entities, entity.id, "Secundus Silo") < entity.missile->range) {
-              entity.missile->target = "Secundus Silo";
-            }
+          // Categories of target
+          static const std::string ships[] = {"ship"};
+          static const std::string silos[] = {"Unum Silo", "Secundus Silo"};
 
-            entity.missile->target = ((bool)state.active_warp ? "Secundus Silo" : "Unum Silo"); // DEBUG DEBUG DEBUG
+          // Figure out which category of target to aim for
+          std::string const* targets = nullptr;
+          int len = 0;
+          if (entity.missile->targeting == SHIP_TARGETING) {
+            targets = ships;
+            len = sizeof(ships)/sizeof(ships[0]);
+          } else if (entity.missile->targeting == SILO_TARGETING) {
+            targets = silos;
+            len = sizeof(silos)/sizeof(silos[0]);
+          } else {
+            // WHAT HAPPENED HERE
           }
+
+          // Find the nearest of target within our range
+          std::string target = "";
+          float target_distance = 0.0f;
+          for (int i = 0; i < len; ++i) {
+            auto candidate = targets[i];
+            float distance = GetDistance(state.entities, entity.id, candidate);
+            if (distance < entity.missile->range) {
+              if (target == "" || distance < target_distance) {
+                target = candidate;
+              }
+            }
+          }
+
+          entity.missile->target = target;
         }
 
         PositionComponent* target = nullptr;

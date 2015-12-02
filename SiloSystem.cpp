@@ -15,7 +15,6 @@ struct EntityQuery<FiringEntity> {
     auto siloItr = entities.silos.find(id);
     auto posItr = entities.positions.find(id);
 
-
     if (siloItr == entities.silos.end() || posItr == entities.positions.end()) {
       return false;
     }
@@ -87,7 +86,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{
       owner,
       targeting,
-      state.entities.silos.at(owner).range
+      state.entities.silos.at(owner).missile_range
     }));
     state.entities.models.insert(std::make_pair(newMissile, ModelComponent{missileMesh}));
   }
