@@ -126,7 +126,7 @@ struct EntityDatabase {
 
   public:
     Iterator(EntityDatabase& entities, inner_iterator itr, inner_iterator end)
-      : entities{entities}, itr{itr}, end{end}
+      : entities(entities), itr{itr}, end{end}
     {
       // Make sure `itr` either points to a matching entity or to `end`
       value_type entity;
