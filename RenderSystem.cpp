@@ -92,15 +92,18 @@ void RenderSystem::Render(GameState& state) {
       // Configure the render properties of this instance via shader uniforms.
       // Properties specific to each instance may include its position, animation step, etc.
 
-      glm::mat4 const modelview = viewMatrix * GetWorldMatrix(state.entities, entity.id);
-      GLint modelviewLocation = glGetUniformLocation(this->shader_id, "modelview");
-      glUniformMatrix4fv(modelviewLocation, 1, GL_FALSE, glm::value_ptr(modelview));
+      glm::mat4 const worldMatrix = GetWorldMatrix(state.entities, entity.id);
+      GLint const worldMatrixLocation = glGetUniformLocation(this->shader_id, "worldMatrix");
+      glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldMatrix));
 
-      GLint projectionLocation = glGetUniformLocation(this->shader_id, "projection");
+      GLint const viewMatrixLocation = glGetUniformLocation(this->shader_id, "viewMatrix");
+      glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+      GLint const projectionLocation = glGetUniformLocation(this->shader_id, "projection");
       glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
 
-      GLint normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
-      glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3{glm::inverseTranspose(modelview)}));
+      GLint const normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
+      glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3{glm::inverseTranspose(worldMatrix)}));
     }
 
     // Render the instance's geometry

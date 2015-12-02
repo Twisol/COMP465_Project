@@ -1,6 +1,7 @@
 #version 330 core
 
-uniform mat4 modelview;
+uniform mat4 worldMatrix;
+uniform mat4 viewMatrix;
 uniform mat4 projection;
 uniform mat3 normalMatrix;
 
@@ -13,9 +14,10 @@ out vec3 normal;
 out vec4 color;
 
 void main() {
-  position = vec3(modelview*vec4(v_position, 1.0));
+  position = vec3(worldMatrix * vec4(v_position, 1.0));
   normal = normalize(normalMatrix*v_normal);
   color = v_color;
 
-  gl_Position = (projection*modelview)*vec4(v_position, 1.0);
+  mat4 MVP = projection * viewMatrix * worldMatrix;
+  gl_Position = MVP * vec4(v_position, 1.0);
 }
