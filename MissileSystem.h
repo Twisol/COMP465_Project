@@ -135,12 +135,12 @@ public:
 
           // If the missile isn't pointing at the target already, rotate to face it.
           if (fabs(glm::dot(missile_at, target_direction)) < 1) {
-            entity.position->orientation =
-              glm::normalize(glm::rotate(
-                entity.position->orientation,
-                acosf(glm::dot(missile_at, target_direction)),
-                rotation_axis
-              ));
+            auto rotation = glm::normalize(glm::rotate(
+              glm::quat{1.0f, 0.0f, 0.0f, 0.0f},
+              acosf(glm::dot(missile_at, target_direction)),
+              rotation_axis
+            ));
+            entity.position->orientation = rotation * entity.position->orientation;
           }
         } else {
           entity.missile->target = "";
