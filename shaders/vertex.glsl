@@ -1,11 +1,10 @@
 #version 330 core
 
 uniform mat4 worldMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projection;
 uniform mat3 normalMatrix;
+uniform mat4 mvpMatrix;
 
-uniform vec4 v_emissivity;
+uniform vec4 u_emissivity;
 
 layout(location=0) in vec3 v_position;
 layout(location=1) in vec3 v_normal;
@@ -20,8 +19,7 @@ void main() {
   position = vec3(worldMatrix * vec4(v_position, 1.0));
   normal = normalize(normalMatrix*v_normal);
   color = v_color;
-  emissivity = v_emissivity;
+  emissivity = u_emissivity;
 
-  mat4 MVP = projection * viewMatrix * worldMatrix;
-  gl_Position = MVP * vec4(v_position, 1.0);
+  gl_Position = mvpMatrix * vec4(v_position, 1.0);
 }

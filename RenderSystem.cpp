@@ -96,16 +96,14 @@ void RenderSystem::Render(GameState& state) {
       GLint const worldMatrixLocation = glGetUniformLocation(this->shader_id, "worldMatrix");
       glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldMatrix));
 
-      GLint const viewMatrixLocation = glGetUniformLocation(this->shader_id, "viewMatrix");
-      glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-
-      GLint const projectionLocation = glGetUniformLocation(this->shader_id, "projection");
-      glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(this->projectionMatrix));
-
       GLint const normalMatrixLocation = glGetUniformLocation(this->shader_id, "normalMatrix");
       glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat3{glm::inverseTranspose(worldMatrix)}));
 
-      GLint const emissivityLocation = glGetUniformLocation(this->shader_id, "v_emissivity");
+      glm::mat4 const mvpMatrix = this->projectionMatrix * viewMatrix * worldMatrix;
+      GLint const mvpMatrixLocation = glGetUniformLocation(this->shader_id, "mvpMatrix");
+      glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+
+      GLint const emissivityLocation = glGetUniformLocation(this->shader_id, "u_emissivity");
       if (entity.id == "Ruber") {
         glUniform4f(emissivityLocation, 0.7f, 0.7f, 0.7f, 1.0f);
       } else {
