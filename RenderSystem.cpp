@@ -107,7 +107,7 @@ void RenderSystem::Render(GameState& state) {
 
       GLint const emissivityLocation = glGetUniformLocation(this->shader_id, "v_emissivity");
       if (entity.id == "Ruber") {
-        glUniform4f(emissivityLocation, 0.5f, 0.5f, 0.5f, 1.0f);
+        glUniform4f(emissivityLocation, 0.7f, 0.7f, 0.7f, 1.0f);
       } else {
         glUniform4f(emissivityLocation, 0.0f, 0.0f, 0.0f, 1.0f);
       }

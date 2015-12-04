@@ -140,8 +140,8 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    state.entities.positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 0.0f, 400.0f}}));
-    state.entities.cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+    state.entities.positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 100.0f, 200.0f}}));
+    state.entities.cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 100.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 }
 
