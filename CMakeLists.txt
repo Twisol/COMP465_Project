@@ -53,6 +53,7 @@ set(SOURCE_FILES
     RenderSystem.cpp
     SiloSystem.cpp
     Mesh.cpp
+    Texture.cpp
     util/debug.cpp
 )
 
