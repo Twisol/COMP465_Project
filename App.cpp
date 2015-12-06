@@ -1,5 +1,6 @@
 #include "App.h"
 #include "SiloSystem.h"
+#include "Texture.h"
 
 #include <GL/glew.h>
 #include <iostream>
@@ -91,6 +92,23 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->siloMesh = loadMeshFromFile("models/silo.tri");
   this->shipMesh = loadMeshFromFile("models/ship.tri");
   this->missileMesh = loadMeshFromFile("models/missile.tri");
+
+  // starfield texture management
+  static int const SQSD = 908; // our .RAW file tiles are 908 pixels on each side
+  unsigned char* texData[6]; // array to hold our texture data
+  GLuint cubeMap = 0; // GL handle for cube map
+
+  // load our texture data array with six square texture tiles
+  texData[0] = loadRawData("images/starfield_1.raw", SQSD, SQSD);
+  texData[1] = loadRawData("images/starfield_2.raw", SQSD, SQSD);
+  texData[2] = loadRawData("images/starfield_3.raw", SQSD, SQSD);
+  texData[3] = loadRawData("images/starfield_4.raw", SQSD, SQSD);
+  texData[4] = loadRawData("images/starfield_5.raw", SQSD, SQSD);
+  texData[5] = loadRawData("images/starfield_6.raw", SQSD, SQSD);
+
+  // create starfield texture cube map
+  cubeMap = makeCubeMap(cubeMap, texData, SQSD);
+  printf("cubeMap has GLuint value: %i\n", cubeMap);
 
   // Instantiate the Ruber system orbiting bodies.
   {
