@@ -101,8 +101,8 @@ GLuint makeCubeMap(GLuint texture, unsigned char* texData[6], int edge) {
       0,                // must be zero!
       GL_RGB,           // format
       GL_UNSIGNED_BYTE, // type
-      texData[face]     // texture data
-    );   // image data
+      texData[face]     // image data
+    );
   }
 
   return texture;
