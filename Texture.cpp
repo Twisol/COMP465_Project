@@ -82,24 +82,28 @@ GLuint makeCubeMap(GLuint texture, unsigned char* texData[6], int edge) {
   // set cube map texture parameters
   glGenTextures(1, &texture);
   glBindTexture(GL_TEXTURE_CUBE_MAP, texture); // bind the texture
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
-  glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 
   // place texture data into cube map's texel array
   for (int face = 0; face < 6; face++) {
     GLenum target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
-    glTexSubImage2D(target,           // face
-                    0,                // level
-                    0, 0,             // X, Y offset
-                    edge, edge,       // size of face
-                    GL_RGB,           // format
-                    GL_UNSIGNED_BYTE, // type
-                    texData[face]);   // image data
+    glTexImage2D(
+      target,           // face
+      0,                // level
+      GL_RGB,           // internal format
+      edge, edge,       // size of face
+      0,                // must be zero!
+      GL_RGB,           // format
+      GL_UNSIGNED_BYTE, // type
+      texData[face]     // texture data
+    );   // image data
   }
+
   return texture;
 }
