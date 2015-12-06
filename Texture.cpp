@@ -58,7 +58,7 @@ unsigned char* loadRawData(const char* filename, int width, int height) {
 
   file = fopen(filename, "rb");
   if (file==NULL) {
-    printf("file %s ca't be opened!\n", filename);
+    printf("file %s can't be opened!\n", filename);
     data = NULL;
   }
 
@@ -69,19 +69,19 @@ unsigned char* loadRawData(const char* filename, int width, int height) {
     data = NULL;
   }
   fclose(file);
-  if (data != NULL) {
-    printf("File %s was loaded!\n", filename);
-  }
   return data;
 }
 
-GLuint makeCubeMap(GLuint texture, unsigned char* texData[6], int edge) {
+GLuint makeCubeMap(unsigned char* texData[6], int edge) {
   // creates cube map texture object and initializes it with image data in
   // passed-in array; edge is number of pixels in each edge of cube
 
   // set cube map texture parameters
+  GLuint texture = GL_NONE;
   glGenTextures(1, &texture);
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, texture); // bind the texture
+
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -105,5 +105,6 @@ GLuint makeCubeMap(GLuint texture, unsigned char* texData[6], int edge) {
     );
   }
 
+  glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
   return texture;
 }

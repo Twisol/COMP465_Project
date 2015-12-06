@@ -8,4 +8,4 @@ GLuint loadRawTexture(GLuint texture, const char* filename, int width, int heigh
 
 unsigned char* loadRawData(const char* filename, int width, int height);
 
-GLuint makeCubeMap(GLuint texture, unsigned char* texData[6], int edge);
+GLuint makeCubeMap(unsigned char* texData[6], int edge);

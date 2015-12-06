@@ -1,5 +1,6 @@
 #include "RenderSystem.h"
 #include "shaders.h"
+#include "Texture.h"
 
 struct RenderableEntity {
   std::string id;
@@ -74,6 +75,36 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
     // TODO: Throw an exception instead so the environment is cleaned up properly.
     exit(1);
   }
+
+  this->skybox_shader_id = create_program_from_files("shaders/skybox-vertex.glsl", "shaders/skybox-fragment.glsl");
+  if (this->skybox_shader_id == GL_NONE) {
+    // TODO: Throw an exception instead so the environment is cleaned up properly.
+    exit(1);
+  }
+
+  this->skyboxMesh = loadMeshFromFile("models/ruber.tri");
+
+  {
+    // starfield texture management
+    static int const CUBE_MAP_DIM = 908; // our .RAW file tiles are 908 pixels on each side
+    unsigned char* texData[6]; // array to hold our texture data
+
+    // load our texture data array with six square texture tiles
+    texData[0] = loadRawData("images/starfield_1.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+    texData[1] = loadRawData("images/starfield_2.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+    texData[2] = loadRawData("images/starfield_3.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+    texData[3] = loadRawData("images/starfield_4.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+    texData[4] = loadRawData("images/starfield_5.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+    texData[5] = loadRawData("images/starfield_6.raw", CUBE_MAP_DIM, CUBE_MAP_DIM);
+
+    // create starfield texture cube map
+    this->cubeMap = makeCubeMap(texData, CUBE_MAP_DIM);
+
+    // release our .RAW file temp memory
+    for (int i = 0; i < 6; i++) {
+      free(texData[i]);
+    }
+  }
 }
 
 void RenderSystem::Render(GameState& state) {
@@ -83,6 +114,35 @@ void RenderSystem::Render(GameState& state) {
   // Compute the cumulative transformation from the world basis to clip space.
   glm::mat4 const viewMatrix = GetViewMatrix(state.entities, CAMERAS[state.active_camera]);
 
+  // Draw the skybox!
+  {
+    glUseProgram(this->skybox_shader_id);
+
+    glm::mat4 mvpMatrix =
+      ( this->projectionMatrix
+      * glm::mat4{glm::mat3{viewMatrix}}
+      );
+    GLint const mvpMatrixLocation = glGetUniformLocation(this->skybox_shader_id, "mvpMatrix");
+    glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+
+    GLint const cubeLocation = glGetUniformLocation(this->skybox_shader_id, "cube");
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(cubeLocation, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->cubeMap);
+
+    glDepthMask(GL_FALSE);
+    glFrontFace(GL_CW);
+
+    // Issue a draw task to the GPU
+    glBindVertexArray(this->skyboxMesh.vao);
+    glDrawArrays(this->skyboxMesh.primitiveType, 0, this->skyboxMesh.primitiveCount);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+    glDepthMask(GL_TRUE);
+    glFrontFace(GL_CCW);
+  }
+
+  // Draw all the other entities
   for (auto entity : state.entities.Query<RenderableEntity>()) {
     // Set up the shader for this instance
     {
