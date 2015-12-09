@@ -73,9 +73,11 @@ struct SiloComponent {
 
   // generated missiles' targeting range
   double missile_range = 0.0;
+  // generated missiles' movement speed
+  double missile_speed = 0.0;
 
-  SiloComponent(int missiles, double range, double missile_range)
-    : range{range}, missiles{missiles}, missile_range{missile_range}
+  SiloComponent(int missiles, double range, double missile_range, double missile_speed)
+    : range{range}, missiles{missiles}, missile_range{missile_range}, missile_speed{missile_speed}
   {}
 };
 
@@ -93,11 +95,13 @@ struct MissileComponent {
   targeting_mode targeting;
   // Missile's range
   double range = 0.0;
+  // Missile's speed
+  double speed = 0.0;
 
   double time_to_live = MAX_LIFETIME;
 
-  MissileComponent(std::string owner, targeting_mode targeting, double range)
-    : owner(owner), targeting(targeting), range(range)
+  MissileComponent(std::string owner, targeting_mode targeting, double range, double speed)
+    : owner(owner), targeting(targeting), range(range), speed(speed)
   {}
 };
 

@@ -49,25 +49,21 @@ GLuint loadRawTexture(GLuint texture, const char* filename, int width, int heigh
   return texture; // return whether it was successful
 }
 
+// loads .RAW image data from specified filename into application memory
+// and returns pointer
 unsigned char* loadRawData(const char* filename, int width, int height) {
-  // loads .RAW image data from specified filename into application memory
-  // and returns pointer
-  unsigned char* data = NULL;
-  FILE* file;
-  int readResult;
-
-  file = fopen(filename, "rb");
-  if (file==NULL) {
+  FILE* file = fopen(filename, "rb");
+  if (!file) {
     printf("file %s can't be opened!\n", filename);
-    data = NULL;
+    return nullptr;
   }
 
-  data = (unsigned char*) malloc(width * height * 3);
-  readResult = fread(data, width * height * 3, 1, file);
-  if (readResult !=1) {
+  unsigned char* data = (unsigned char*)malloc(width * height * 3);
+  if (fread(data, width * height * 3, 1, file) != 1) {
     printf("File %s was not read correctly!\n", filename);
-    data = NULL;
+    data = nullptr;
   }
+
   fclose(file);
   return data;
 }

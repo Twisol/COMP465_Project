@@ -14,6 +14,8 @@ using namespace std;
 static double const SILO_RANGE = 5000.0;
 static double const SHIP_RANGE = 0.0;
 static double const MISSILE_RANGE = 5000.0;
+static double const SILO_MISSILE_SPEED = 125.0f;
+static double const SHIP_MISSILE_SPEED = 500.0f;
 static int const SILO_COUNT = 5;
 static int const SHIP_COUNT = 10;
 
@@ -106,7 +108,7 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     state.entities.positions.insert(std::make_pair("Unum Silo", PositionComponent{"Unum", glm::vec3{0.0f, 250.0f, 0.0f}}));
     state.entities.models.insert(std::make_pair("Unum Silo", ModelComponent{&this->siloMesh}));
-    state.entities.silos.insert(std::make_pair("Unum Silo", SiloComponent{SILO_COUNT, SILO_RANGE, MISSILE_RANGE}));
+    state.entities.silos.insert(std::make_pair("Unum Silo", SiloComponent{SILO_COUNT, SILO_RANGE, MISSILE_RANGE, SILO_MISSILE_SPEED}));
 
     state.entities.positions.insert(std::make_pair("Duo", PositionComponent{"Ruber", glm::vec3{-9000.0f, 0.0f, 0.0f}}));
     state.entities.orbits.insert(std::make_pair("Duo", OrbitComponent{2.0*M_PI/126.0, 2.0*M_PI/126.0}));
@@ -122,11 +124,11 @@ void App::OnAcquireContext(GLFWwindow* window) {
 
     state.entities.positions.insert(std::make_pair("Secundus Silo", PositionComponent{"Secundus", glm::vec3{0.0f, 200.0f, 0.0f}}));
     state.entities.models.insert(std::make_pair("Secundus Silo", ModelComponent{&this->siloMesh}));
-    state.entities.silos.insert(std::make_pair("Secundus Silo", SiloComponent{SILO_COUNT, SILO_RANGE, MISSILE_RANGE}));
+    state.entities.silos.insert(std::make_pair("Secundus Silo", SiloComponent{SILO_COUNT, SILO_RANGE, MISSILE_RANGE, SILO_MISSILE_SPEED}));
 
     state.entities.positions.insert(std::make_pair("ship", PositionComponent{"::world", glm::vec3{5000.0f, 1000.0f, 5000.0f}}));
     state.entities.models.insert(std::make_pair("ship", ModelComponent{&this->shipMesh}));
-    state.entities.silos.insert(std::make_pair("ship", SiloComponent{SHIP_COUNT, SHIP_RANGE, MISSILE_RANGE}));
+    state.entities.silos.insert(std::make_pair("ship", SiloComponent{SHIP_COUNT, SHIP_RANGE, MISSILE_RANGE, SHIP_MISSILE_SPEED}));
   }
 
   // Create some cameras
@@ -137,10 +139,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("View: Top", PositionComponent{"::world", glm::vec3{0.0f, 20000.0f, 0.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
 
-    state.entities.positions.insert(std::make_pair("View: Unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -2000.0f}}));
+    state.entities.positions.insert(std::make_pair("View: Unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -8000.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
-    state.entities.positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 2000.0f}}));
+    state.entities.positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 8000.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
     state.entities.positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 100.0f, 200.0f}}));

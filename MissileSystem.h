@@ -5,8 +5,6 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <cmath>
 
-static float const MISSILE_SPEED = 125.0f;
-
 struct DirectableEntity {
   std::string id;
   PositionComponent* position;
@@ -147,7 +145,7 @@ public:
         }
       }
 
-      entity.position->translation += entity.position->orientation * (((float)delta)*glm::vec3{0.0f, 0.0f, -MISSILE_SPEED});
+      entity.position->translation += entity.position->orientation * (((float)delta)*glm::vec3{0.0f, 0.0f, -entity.missile->speed});
 
       ++itr;
     }
