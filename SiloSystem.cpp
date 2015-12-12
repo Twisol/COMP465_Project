@@ -62,7 +62,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     switch (targeting) {
       case SILO_TARGETING : {
         orientation = state.entities.positions.at(owner).orientation;
-        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 0.0f, -75.0f};
+        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 0.0f, -90.0f};
       } break;
 
       case SHIP_TARGETING : {
@@ -71,7 +71,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
           glm::radians(90.0f),
           glm::vec3{1.0f, 0.0f, 0.0f}
         ));
-        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 50.0f, 0.0f};
+        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 70.0f, 0.0f};
       } break;
 
     }
@@ -96,7 +96,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
 void SiloSystem::Update(GameState& state, double /*delta*/) {
   for (auto entity : state.entities.Query<FiringEntity>()) {
     // entities with positive ranges are enemy silos
-    if (entity.silo->range > 0.0) {
+    if (entity.silo->range > 0.0 && !state.entities.silos.at("ship").destroyed) {
       // calculate distance between current silo and warbird
       auto const silo_position = glm::vec3{GetWorldMatrix(state.entities, entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
       auto const ship_position = glm::vec3{GetWorldMatrix(state.entities, "ship") * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};

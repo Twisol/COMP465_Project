@@ -86,7 +86,7 @@ public:
         continue;
       } else if (entity.missile->time_to_live <= MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
       // Aim towards the target (if target unassigned, assign target)
-        if (entity.missile->target == "") {
+        if (entity.missile->target == "" || state.entities.silos.at(entity.missile->target).destroyed) {
           // Categories of target
           static const std::string ships[] = {"ship"};
           static const std::string silos[] = {"Unum Silo", "Secundus Silo"};
@@ -109,6 +109,11 @@ public:
           float target_distance = 0.0f;
           for (int i = 0; i < len; ++i) {
             auto candidate = targets[i];
+            if (state.entities.silos.at(candidate).destroyed) {
+            // Skip candidate targets which have already been destroyed
+              continue;
+            }
+
             float distance = GetDistance(state.entities, entity.id, candidate);
             if (distance < entity.missile->range) {
               if (target == "" || distance < target_distance) {

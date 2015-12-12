@@ -44,6 +44,7 @@ struct Mesh {
 
     this->primitiveType = other.primitiveType;
     this->primitiveCount = other.primitiveCount;
+    this->boundingRadius = other.boundingRadius;
   }
   Mesh& operator=(Mesh&& other) {
     if (this == &other) {
@@ -60,6 +61,7 @@ struct Mesh {
 
     this->primitiveType = other.primitiveType;
     this->primitiveCount = other.primitiveCount;
+    this->boundingRadius = other.boundingRadius;
 
     return *this;
   }

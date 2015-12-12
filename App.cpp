@@ -54,6 +54,30 @@ struct EntityQuery<OrbitalEntity> {
   }
 };
 
+struct CollidableEntity {
+  std::string id;
+  PositionComponent* position;
+  ModelComponent* model;
+};
+
+template<>
+struct EntityQuery<CollidableEntity> {
+  typedef CollidableEntity Entity;
+
+  static bool Query(EntityDatabase& entities, std::string id, CollidableEntity* const entity) {
+    auto posItr = entities.positions.find(id);
+    auto modelItr = entities.models.find(id);
+
+    if (posItr == entities.positions.end() || modelItr == entities.models.end()) {
+      return false;
+    }
+
+    entity->id = id;
+    entity->position = &posItr->second;
+    entity->model = &modelItr->second;
+    return true;
+  }
+};
 
 
 double App::GetTimeScaling() const {
@@ -263,7 +287,8 @@ static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotatio
 
 // Updates the application state.
 void App::OnTimeStep(double delta) {
-  {
+  // Handle ship navigation, if we aren't dead...
+  if (!state.entities.silos.at("ship").destroyed) {
     // ship navigation
     PositionComponent& ship_position = state.entities.positions.at("ship");
 
@@ -318,5 +343,51 @@ void App::OnTimeStep(double delta) {
       (float)(entity.orbit->orbital_velocity * delta),
       glm::vec3{0.0f, 1.0f, 0.0f}
     );
+  }
+
+  // Check for collisions.
+  auto view = state.entities.Query<CollidableEntity>();
+  for (auto itr1 = view.begin(); itr1 != view.end();) {
+    auto entity = *itr1;
+    bool entity_destroyed = false;
+
+    for (auto itr2 = view.begin(); itr2 != view.end();) {
+      auto collidable = *itr2;
+      auto collidable_destroyed = false;
+
+      if (collidable.id != entity.id) {
+        glm::vec3 pos1 = glm::vec3{GetWorldMatrix(entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+        glm::vec3 pos2 = glm::vec3{GetWorldMatrix(collidable.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+
+        if (glm::length(pos2 - pos1) < entity.model->mesh->boundingRadius + collidable.model->mesh->boundingRadius) {
+          // Collision!
+          if (state.entities.silos.find(entity.id) != state.entities.silos.end()) {
+            state.entities.silos.at(entity.id).destroyed = true;
+          } else if (state.entities.missiles.find(entity.id) != state.entities.missiles.end()) {
+            entity_destroyed = true;
+            state.entities.silos.at(state.entities.missiles.at(entity.id).owner).current_missile = "";
+          }
+
+          if (state.entities.silos.find(collidable.id) != state.entities.silos.end()) {
+            state.entities.silos.at(collidable.id).destroyed = true;
+          } else if (state.entities.missiles.find(collidable.id) != state.entities.missiles.end()) {
+            collidable_destroyed = true;
+            state.entities.silos.at(state.entities.missiles.at(collidable.id).owner).current_missile = "";
+          }
+        }
+      }
+
+      if (collidable_destroyed) {
+        itr2.remove();
+      } else {
+        ++itr2;
+      }
+    }
+
+    if (entity_destroyed) {
+      itr1.remove();
+    } else {
+      ++itr1;
+    }
   }
 }
