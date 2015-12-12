@@ -82,7 +82,7 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
     exit(1);
   }
 
-  this->skyboxMesh = loadMeshFromFile("models/ruber.tri");
+  this->skyboxMesh = loadMeshFromFile("models/skybox.tri");
 
   {
     // starfield texture management
@@ -165,7 +165,7 @@ void RenderSystem::Render(GameState& state) {
 
       GLint const emissivityLocation = glGetUniformLocation(this->shader_id, "u_emissivity");
       if (entity.id == "Ruber") {
-        glUniform4f(emissivityLocation, 0.7f, 0.7f, 0.7f, 1.0f);
+        glUniform4f(emissivityLocation, 0.87f, 0.47f, 0.0f, 1.0f);
       } else {
         glUniform4f(emissivityLocation, 0.0f, 0.0f, 0.0f, 1.0f);
       }
