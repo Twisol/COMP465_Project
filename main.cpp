@@ -87,7 +87,7 @@ std::string make_window_title(App const& app, int framerate) {
     } else {
       builder << app.state.entities.silos.at("Unum Silo").missiles;
     }
-    builder << " | Unum: ";
+    builder << " | Secundus: ";
     if (app.state.entities.silos.at("Secundus Silo").destroyed) {
       builder << "X";
     } else {
