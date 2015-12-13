@@ -163,14 +163,14 @@ void App::OnAcquireContext(GLFWwindow* window) {
     state.entities.positions.insert(std::make_pair("View: Top", PositionComponent{"::world", glm::vec3{0.0f, 20000.0f, 0.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Top", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f})));
 
+    state.entities.positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 300.0f, 1000.0f}}));
+    state.entities.cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 300.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
+
     state.entities.positions.insert(std::make_pair("View: Unum", PositionComponent{"Unum", glm::vec3{0.0f, 0.0f, -8000.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Unum", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
 
     state.entities.positions.insert(std::make_pair("View: Duo", PositionComponent{"Duo", glm::vec3{0.0f, 0.0f, 8000.0f}}));
     state.entities.cameras.insert(std::make_pair("View: Duo", CameraComponent(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
-
-    state.entities.positions.insert(std::make_pair("View: Ship", PositionComponent{"ship", glm::vec3{0.0f, 300.0f, 1000.0f}}));
-    state.entities.cameras.insert(std::make_pair("View: Ship", CameraComponent(glm::vec3{0.0f, 300.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f})));
   }
 }
 
@@ -351,9 +351,25 @@ void App::OnTimeStep(double delta) {
     auto entity = *itr1;
     bool entity_destroyed = false;
 
+    // Don't test missiles which are not targeting for collision
+    if (state.entities.missiles.find(entity.id) != state.entities.missiles.end()) {
+      if (state.entities.missiles.at(entity.id).time_to_live > MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
+        ++itr1;
+        continue;
+      }
+    }
+
     for (auto itr2 = view.begin(); itr2 != view.end();) {
       auto collidable = *itr2;
       auto collidable_destroyed = false;
+
+      // Don't test missiles which are not targeting for collision
+      if (state.entities.missiles.find(collidable.id) != state.entities.missiles.end()) {
+        if (state.entities.missiles.at(collidable.id).time_to_live > MissileComponent::MAX_LIFETIME - MissileComponent::IDLE_PERIOD) {
+          ++itr2;
+          continue;
+        }
+      }
 
       if (collidable.id != entity.id) {
         glm::vec3 pos1 = glm::vec3{GetWorldMatrix(entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
