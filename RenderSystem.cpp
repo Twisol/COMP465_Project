@@ -108,20 +108,24 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
 }
 
 struct Light {
-  glm::vec3 position;
-  glm::vec3 color;
+  glm::vec4 position;
 
-  float ambient;  // Approximates scattering for this light
+  glm::vec3 ambient;
+  glm::vec3 diffuse;
+  glm::vec3 specular;
+
   float attenuation;
   bool enabled;  // Whether the light should be utilized
 };
 
 static Light GetGlobalLight(GameState& state) {
   return Light{
+    glm::vec4(0.0f, 0.0f, 0.0f, 0.0f),
+
+    glm::vec3(0.3f, 0.3f, 0.3f),
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
-    0.3,
     0.0,
     true,  // TODO: Check enabled from game state
   };
@@ -129,10 +133,12 @@ static Light GetGlobalLight(GameState& state) {
 
 static Light GetRuberLight(GameState& state) {
   return Light{
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
 
-    0.2,
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(0.2f, 0.2f, 0.2f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+
     0.000000003,
     true,  // TODO: Check enabled from game state
   };
