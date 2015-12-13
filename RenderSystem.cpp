@@ -138,8 +138,8 @@ static Light GetRuberLight(GameState& state) {
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
-    glm::vec3(1.0f, 1.0f, 1.0f),
     glm::vec3(0.2f, 0.2f, 0.2f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
     0.000000003f,
@@ -230,6 +230,42 @@ void RenderSystem::Render(GameState& state) {
 
       GLint const viewNormalLocation = glGetUniformLocation(this->shader_id, "u_viewNormal");
       glUniform3fv(viewNormalLocation, 1, glm::value_ptr(glm::vec3{inverseViewMatrix * glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}}));
+
+      { // Specify Ruber light
+        Light light = GetRuberLight(state);
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_ruberLight.position"), 1, glm::value_ptr(light.position));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_ruberLight.direction"), 1, glm::value_ptr(light.direction));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_ruberLight.ambient"), 1, glm::value_ptr(light.ambient));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_ruberLight.diffuse"), 1, glm::value_ptr(light.diffuse));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_ruberLight.specular"), 1, glm::value_ptr(light.specular));
+
+        glUniform1f(glGetUniformLocation(this->shader_id, "u_ruberLight.attenuation"), light.attenuation);
+        glUniform1i(glGetUniformLocation(this->shader_id, "u_ruberLight.enabled"), light.enabled);
+      }
+
+      { // Specify Global light
+        Light light = GetGlobalLight(state);
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_globalLight.position"), 1, glm::value_ptr(light.position));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_globalLight.direction"), 1, glm::value_ptr(light.direction));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_globalLight.ambient"), 1, glm::value_ptr(light.ambient));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_globalLight.diffuse"), 1, glm::value_ptr(light.diffuse));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_globalLight.specular"), 1, glm::value_ptr(light.specular));
+
+        glUniform1f(glGetUniformLocation(this->shader_id, "u_globalLight.attenuation"), light.attenuation);
+        glUniform1i(glGetUniformLocation(this->shader_id, "u_globalLight.enabled"), light.enabled);
+      }
+
+      { // Specify Headlight
+        Light light = GetHeadLight(state);
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_headLight.position"), 1, glm::value_ptr(light.position));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_headLight.direction"), 1, glm::value_ptr(light.direction));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_headLight.ambient"), 1, glm::value_ptr(light.ambient));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_headLight.diffuse"), 1, glm::value_ptr(light.diffuse));
+        glUniform3fv(glGetUniformLocation(this->shader_id, "u_headLight.specular"), 1, glm::value_ptr(light.specular));
+
+        glUniform1f(glGetUniformLocation(this->shader_id, "u_headLight.attenuation"), light.attenuation);
+        glUniform1i(glGetUniformLocation(this->shader_id, "u_headLight.enabled"), light.enabled);
+      }
     }
 
     // Render the instance's geometry

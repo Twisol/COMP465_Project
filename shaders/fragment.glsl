@@ -12,18 +12,10 @@ struct Light {
   bool enabled;  // Whether the light should be utilized
 };
 
-const Light ruberLight = Light(
-  vec3(0, 0, 0),
-  vec3(0, 0, 0),
 
-  vec3(0.2, 0.2, 0.2),
-  vec3(1, 1, 1),
-  vec3(0, 0, 0),
-
-  0.000000003,
-  true
-);
-const float ambient = 0.3;  // Global ambient light
+uniform Light u_ruberLight;
+uniform Light u_globalLight;
+uniform Light u_headLight;
 
 uniform vec3 u_viewPosition;
 uniform vec3 u_viewNormal;
@@ -40,23 +32,28 @@ vec4 applyLighting(Light light) {
     return vec4(0, 0, 0, 1);
   }
 
-  vec3 to_light = vec3(light.position) - position;
-  float len = length(to_light);
+  vec3 to_light = light.position - position;
+  float dist_light = length(to_light);
   to_light = normalize(to_light);
 
-  vec3 diffuseFactor = max(0, dot(normal, to_light)) * light.diffuse;
+  vec3 to_eye = u_viewPosition - position;
+  float dist_eye = length(to_eye);
+  to_eye = normalize(to_eye);
+
   vec3 ambientFactor = light.ambient;
+  vec3 diffuseFactor = max(0, dot(normal, to_light)) * light.diffuse;
   vec3 specularFactor = vec3(0, 0, 0);  // TODO: Implement specular lighting!
 
-  float attenuation = 1.0/(1.0 + light.attenuation*len*len);
+  float attenuation = 1.0/(1.0 + light.attenuation*dist_light*dist_light);
   return vec4(ambientFactor + diffuseFactor + specularFactor, 1) * attenuation * color;
 }
 
 void main() {
   vec4 accumulatedColor = vec4(0, 0, 0, 0);
   accumulatedColor += emissivity; // Emissive light for this fragment
-  accumulatedColor += applyLighting(ruberLight); // Light from Ruber
-  accumulatedColor += ambient*color; // Global illumination
+  accumulatedColor += applyLighting(u_ruberLight); // Light from Ruber
+  accumulatedColor += applyLighting(u_globalLight); // Global illumination
+  accumulatedColor += applyLighting(u_headLight); // Directional illumination
 
   fragColor = accumulatedColor;
 }
