@@ -50,8 +50,8 @@ vec4 applyLighting(Light light) {
   vec3 diffuseFactor = vec3(0, 0, 0);
   vec3 specularFactor = vec3(0, 0, 0);
   if (dot(light.direction, u_viewPosition - light.position) <= 0) {
-    diffuseFactor = max(0, dot(normal, to_light)) * light.diffuse;
-    specularFactor = vec3(0, 0, 0);  // TODO: Implement specular lighting!
+    diffuseFactor = light.diffuse * max(0, dot(normal, to_light));
+    specularFactor = light.specular * pow(max(0, dot(to_eye, reflect(-to_light, normal))), 16);
   }
 
   float attenuation = 1.0/(1.0 + light.attenuation*dist_light*dist_light);

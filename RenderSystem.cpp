@@ -157,7 +157,7 @@ static Light GetHeadLight(GameState& state) {
 
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.4f, 0.4f, 0.4f),
-    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.8f, 0.8f, 0.8f),
 
     0.0f,
     state.is_lit_headlight,
