@@ -108,7 +108,8 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
 }
 
 struct Light {
-  glm::vec4 position;
+  glm::vec3 position;
+  glm::vec3 direction;  // (0, 0, 0) means point light; otherwise means directional
 
   glm::vec3 ambient;
   glm::vec3 diffuse;
@@ -120,26 +121,28 @@ struct Light {
 
 static Light GetGlobalLight(GameState& state) {
   return Light{
-    glm::vec4(0.0f, 0.0f, 0.0f, 0.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
 
     glm::vec3(0.3f, 0.3f, 0.3f),
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
-    0.0,
+    0.0f,
     true,  // TODO: Check enabled from game state
   };
 }
 
 static Light GetRuberLight(GameState& state) {
   return Light{
-    glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
 
     glm::vec3(1.0f, 1.0f, 1.0f),
     glm::vec3(0.2f, 0.2f, 0.2f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
-    0.000000003,
+    0.000000003f,
     true,  // TODO: Check enabled from game state
   };
 }

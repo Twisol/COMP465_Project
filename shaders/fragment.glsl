@@ -1,7 +1,8 @@
 #version 330 core
 
 struct Light {
-  vec4 position;
+  vec3 position;
+  vec3 direction;
 
   vec3 ambient;
   vec3 diffuse;
@@ -12,7 +13,8 @@ struct Light {
 };
 
 const Light ruberLight = Light(
-  vec4(0, 0, 0, 1),
+  vec3(0, 0, 0),
+  vec3(0, 0, 0),
 
   vec3(0.2, 0.2, 0.2),
   vec3(1, 1, 1),
