@@ -121,6 +121,10 @@ void App::OnAcquireContext(GLFWwindow* window) {
   this->shipMesh = loadMeshFromFile("models/ship.tri");
   this->missileMesh = loadMeshFromFile("models/missile.tri");
 
+  // Give ships and missiles a larger bounding sphere for collision detection
+  this->shipMesh.boundingRadius += 10;
+  this->missileMesh.boundingRadius += 10;
+
   // Instantiate the Ruber system orbiting bodies.
   {
     state.entities.positions.insert(std::make_pair("Ruber", PositionComponent{"::world", glm::vec3{0.0f, 0.0f, 0.0f}}));
