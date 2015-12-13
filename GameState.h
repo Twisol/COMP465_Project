@@ -20,6 +20,13 @@ struct GameState {
 
   // Entity component tables
   EntityDatabase entities;
+
+  // Lamp toggles
+  bool is_lit_global = true;
+  bool is_lit_ruber = true;
+  bool is_lit_headlamp = true;
+  bool is_lit_spotlight = true;
+
 };
 
 extern std::string const CAMERAS[];
