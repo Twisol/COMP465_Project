@@ -49,7 +49,7 @@ vec4 applyLighting(Light light) {
   vec3 specularFactor = vec3(0, 0, 0);  // TODO: Implement specular lighting!
 
   float attenuation = 1.0/(1.0 + light.attenuation*len*len);
-  return vec4(ambientFactor + diffuseFactor, 1) * attenuation * color;
+  return vec4(ambientFactor + diffuseFactor + specularFactor, 1) * attenuation * color;
 }
 
 void main() {

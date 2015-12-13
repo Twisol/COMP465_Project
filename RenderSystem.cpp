@@ -129,7 +129,7 @@ static Light GetGlobalLight(GameState& state) {
     glm::vec3(0.0f, 0.0f, 0.0f),
 
     0.0f,
-    true,  // TODO: Check enabled from game state
+    state.is_lit_global,
   };
 }
 
@@ -143,13 +143,22 @@ static Light GetRuberLight(GameState& state) {
     glm::vec3(0.0f, 0.0f, 0.0f),
 
     0.000000003f,
-    true,  // TODO: Check enabled from game state
+    state.is_lit_ruber,
   };
 }
 
 static Light GetHeadLight(GameState& state) {
-  // TODO: Implement this, Ben!
-  return GetGlobalLight(state);
+  return Light{
+    glm::vec3(GetWorldMatrix(state.entities, "ship") * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
+    glm::vec3(GetWorldMatrix(state.entities, "ship") * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
+
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(0.2f, 0.2f, 0.2f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+
+    0.0f,
+    state.is_lit_headlight,
+  };
 }
 
 void RenderSystem::Render(GameState& state) {

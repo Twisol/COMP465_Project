@@ -254,6 +254,12 @@ void App::OnKeyEvent(int key, int action, int mods) {
     this->state.gravity_enabled = !this->state.gravity_enabled;
   } else if (action == GLFW_PRESS && key == GLFW_KEY_F) {
     SiloSystem::FireMissile(state, "ship", SILO_TARGETING, &this->missileMesh);
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+    this->state.is_lit_global = !state.is_lit_global;
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_P) {
+    this->state.is_lit_ruber = !state.is_lit_ruber;
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+    this->state.is_lit_headlight = !state.is_lit_headlight;
   }
 }
 

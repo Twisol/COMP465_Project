@@ -17,7 +17,7 @@ Mesh loadMeshFromFile(char const* tri_path) {
   // get our file and parse it into our vector of GLfloats
   std::vector<GLfloat> tri_vector;
   float radius = 0.0f;
-  readTriFile(tri_path, &tri_vector, &radius); // TODO: ADD ERROR TRAPPING
+  readTriFile(tri_path, &tri_vector, &radius);
 
   // Upload the model to GPU memory
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*tri_vector.size(), tri_vector.data(), GL_STATIC_DRAW);
@@ -61,7 +61,6 @@ static bool readTriFile(char const* tri_path, std::vector<GLfloat>* const tri_ve
     // parse current line into our array
     bool success = readTriLine(f, tri_vector, radius);
     if (!success) {
-      // TODO: error checking
       break;
     }
   }
