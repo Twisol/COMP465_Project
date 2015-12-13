@@ -32,7 +32,13 @@ vec4 applyLighting(Light light) {
     return vec4(0, 0, 0, 1);
   }
 
-  vec3 to_light = light.position - position;
+  vec3 to_light;
+  if (length(light.direction) == 0) {
+    to_light = light.position - position;
+  } else {
+    to_light = -light.direction;
+  }
+
   float dist_light = length(to_light);
   to_light = normalize(to_light);
 
@@ -41,8 +47,12 @@ vec4 applyLighting(Light light) {
   to_eye = normalize(to_eye);
 
   vec3 ambientFactor = light.ambient;
-  vec3 diffuseFactor = max(0, dot(normal, to_light)) * light.diffuse;
-  vec3 specularFactor = vec3(0, 0, 0);  // TODO: Implement specular lighting!
+  vec3 diffuseFactor = vec3(0, 0, 0);
+  vec3 specularFactor = vec3(0, 0, 0);
+  if (dot(light.direction, u_viewPosition - light.position) <= 0) {
+    diffuseFactor = max(0, dot(normal, to_light)) * light.diffuse;
+    specularFactor = vec3(0, 0, 0);  // TODO: Implement specular lighting!
+  }
 
   float attenuation = 1.0/(1.0 + light.attenuation*dist_light*dist_light);
   return vec4(ambientFactor + diffuseFactor + specularFactor, 1) * attenuation * color;

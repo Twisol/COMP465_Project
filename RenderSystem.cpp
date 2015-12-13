@@ -148,12 +148,15 @@ static Light GetRuberLight(GameState& state) {
 }
 
 static Light GetHeadLight(GameState& state) {
-  return Light{
-    glm::vec3(GetWorldMatrix(state.entities, "ship") * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
-    glm::vec3(GetWorldMatrix(state.entities, "ship") * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
+  glm::mat4 const viewMatrix = GetViewMatrix(state.entities, CAMERAS[state.active_camera]);
+  glm::mat4 const inverseViewMatrix = glm::inverse(viewMatrix);
 
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(0.2f, 0.2f, 0.2f),
+  return Light{
+    glm::vec3(inverseViewMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
+    glm::vec3(inverseViewMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
+
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.4f, 0.4f, 0.4f),
     glm::vec3(0.0f, 0.0f, 0.0f),
 
     0.0f,
