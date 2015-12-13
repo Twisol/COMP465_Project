@@ -10,6 +10,7 @@
 
 #include "Mesh.h"
 
+// The type of entity which a missile will target when in targeting mode.
 enum targeting_mode {
   SILO_TARGETING,
   SHIP_TARGETING,
@@ -106,6 +107,18 @@ struct MissileComponent {
 };
 
 
+
+/**
+ * The code below is quite hairy and not recommended for the faint of heart.
+ * Suffice to say that (a) it implements a custom iterator type for the collection
+ * of all entities split across component tables, and (b) it utilizes the modern
+ * C++ concept of a "trait object", which allows extension of a class without
+ * using inheritance to do so.
+ *
+ * To query the database, implement a new entity type representing the "result row",
+ * and implement a template specialization for EntityQuery on your new type, with
+ * fields as depicted by the comments in the definitiomn of EntityQuery below.
+ */
 struct EntityDatabase;
 
 template<typename T>
@@ -115,6 +128,7 @@ struct EntityQuery {
 };
 
 struct EntityDatabase {
+  // The tables containing each distinct flavor of component.
   std::unordered_map<std::string, PositionComponent> positions;
   std::unordered_map<std::string, OrbitComponent> orbits;
   std::unordered_map<std::string, ModelComponent> models;

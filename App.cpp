@@ -29,12 +29,12 @@ static double const SCALINGS[] = {
   0.08, // DEBUG_SPEED
 };
 
+// Query result object for interfacing with the EntityDatabase
 struct OrbitalEntity {
   std::string id;
   PositionComponent* position;
   OrbitComponent* orbit;
 };
-
 template<>
 struct EntityQuery<OrbitalEntity> {
   typedef OrbitalEntity Entity;
@@ -54,6 +54,7 @@ struct EntityQuery<OrbitalEntity> {
   }
 };
 
+// Query result object for interfacing with the EntityDatabase
 struct CollidableEntity {
   std::string id;
   PositionComponent* position;
@@ -80,6 +81,7 @@ struct EntityQuery<CollidableEntity> {
 };
 
 
+// Provides the current time-coupling between the game world and the real world.
 double App::GetTimeScaling() const {
   return SCALINGS[this->state.time_scaling_idx];
 }
@@ -185,6 +187,7 @@ void App::OnReleaseContext() {
 
 static bool g_IS_MODDED = false;
 
+// Computes the view matrix from the world to the given entity.
 glm::mat4 App::GetViewMatrix(std::string const& id) const {
   PositionComponent const& position = state.entities.positions.at(id);
   CameraComponent const& camera = state.entities.cameras.at(id);
@@ -209,6 +212,7 @@ glm::mat4 App::GetViewMatrix(std::string const& id) const {
   return viewMatrix;
 }
 
+// Computes the model matrix from the given entity to the world.
 glm::mat4 App::GetWorldMatrix(std::string const& id) const {
   PositionComponent const& position = state.entities.positions.at(id);
 
@@ -263,6 +267,7 @@ void App::OnKeyEvent(int key, int action, int mods) {
   }
 }
 
+// Computes the raw input vectors from the user input
 static void get_input_vectors(GLFWwindow* const window, glm::vec3* const rotation, glm::vec3* const translation) {
   if (glfwGetKey(window, GLFW_KEY_UP) && !g_IS_MODDED) {
     *translation += glm::vec3{0.0f, 0.0f, -1.0f};
@@ -383,22 +388,27 @@ void App::OnTimeStep(double delta) {
         }
       }
 
+      // Don't collide with ourself
       if (collidable.id != entity.id) {
         glm::vec3 pos1 = glm::vec3{GetWorldMatrix(entity.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
         glm::vec3 pos2 = glm::vec3{GetWorldMatrix(collidable.id) * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 
         if (glm::length(pos2 - pos1) < entity.model->mesh->boundingRadius + collidable.model->mesh->boundingRadius) {
-          // Collision!
+        // Collision! The bounding spheres overlap.
           if (state.entities.silos.find(entity.id) != state.entities.silos.end()) {
+          // Mark silos as destroyed
             state.entities.silos.at(entity.id).destroyed = true;
           } else if (state.entities.missiles.find(entity.id) != state.entities.missiles.end()) {
+          // Remove missiles from the database
             entity_destroyed = true;
             state.entities.silos.at(state.entities.missiles.at(entity.id).owner).current_missile = "";
           }
 
           if (state.entities.silos.find(collidable.id) != state.entities.silos.end()) {
+          // Mark silos as destroyed
             state.entities.silos.at(collidable.id).destroyed = true;
           } else if (state.entities.missiles.find(collidable.id) != state.entities.missiles.end()) {
+          // Remove missiles from the database
             collidable_destroyed = true;
             state.entities.silos.at(state.entities.missiles.at(collidable.id).owner).current_missile = "";
           }

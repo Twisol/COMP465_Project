@@ -1,12 +1,12 @@
 #include "SiloSystem.h"
 #include <glm/gtc/quaternion.hpp>
 
+// Query result object for interfacing with the EntityDatabase
 struct FiringEntity {
   std::string id;
   SiloComponent* silo;
   PositionComponent* position;
 };
-
 template<>
 struct EntityQuery<FiringEntity> {
   typedef FiringEntity Entity;
@@ -26,6 +26,7 @@ struct EntityQuery<FiringEntity> {
   }
 };
 
+// Computes the model matrix from the given entity to the world.
 static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id) {
   PositionComponent const& position = entities.positions.at(id);
 

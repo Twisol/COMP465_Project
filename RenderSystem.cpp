@@ -2,12 +2,12 @@
 #include "shaders.h"
 #include "Texture.h"
 
+// Query result object for interfacing with the EntityDatabase
 struct RenderableEntity {
   std::string id;
   PositionComponent* position;
   ModelComponent* model;
 };
-
 template<>
 struct EntityQuery<RenderableEntity> {
   typedef RenderableEntity Entity;
@@ -27,6 +27,7 @@ struct EntityQuery<RenderableEntity> {
   }
 };
 
+// Computes the view matrix from the world to the given entity.
 static glm::mat4 GetViewMatrix(EntityDatabase& entities, std::string const& id) {
   PositionComponent const& position = entities.positions.at(id);
   CameraComponent const& camera = entities.cameras.at(id);
@@ -51,6 +52,7 @@ static glm::mat4 GetViewMatrix(EntityDatabase& entities, std::string const& id) 
   return viewMatrix;
 }
 
+// Computes the model matrix from the given entity to the world.
 static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id) {
   PositionComponent const& position = entities.positions.at(id);
 
@@ -70,18 +72,21 @@ static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id)
 RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
   : window{window}, projectionMatrix{projectionMatrix}
 {
+  // Prepare the mainline rendering shader
   this->shader_id = create_program_from_files("shaders/vertex.glsl", "shaders/fragment.glsl");
   if (this->shader_id == GL_NONE) {
     // TODO: Throw an exception instead so the environment is cleaned up properly.
     exit(1);
   }
 
+  // Prepare the skybox rendering shader
   this->skybox_shader_id = create_program_from_files("shaders/skybox-vertex.glsl", "shaders/skybox-fragment.glsl");
   if (this->skybox_shader_id == GL_NONE) {
     // TODO: Throw an exception instead so the environment is cleaned up properly.
     exit(1);
   }
 
+  // Load the box geometry for our skybox to be drawn on
   this->skyboxMesh = loadMeshFromFile("models/skybox.tri");
 
   {
@@ -107,6 +112,8 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
   }
 }
 
+// A mimic of the struct defined in our GLSL fragment shader.
+// Represents all of the parameters of a light in our lighting model.
 struct Light {
   glm::vec3 position;
   glm::vec3 direction;  // (0, 0, 0) means point light; otherwise means directional
@@ -114,6 +121,7 @@ struct Light {
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
+  // Specular sharpness/power is fixed in the shader
 
   float attenuation;
   bool enabled;  // Whether the light should be utilized

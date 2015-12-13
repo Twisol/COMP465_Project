@@ -2,6 +2,8 @@
 
 #include "EntityDatabase.h"
 
+// Represents all of the data of our game as plain-old data (PODs), without
+// associated behavior.
 struct GameState {
   // Index of the active camera in our list of selectable cameras
   int active_camera = 0;

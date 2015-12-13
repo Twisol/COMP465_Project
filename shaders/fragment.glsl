@@ -1,5 +1,6 @@
 #version 330 core
 
+// Represents all of the parameters for a single light source
 struct Light {
   vec3 position;
   vec3 direction;
@@ -12,21 +13,25 @@ struct Light {
   bool enabled;  // Whether the light should be utilized
 };
 
-
+// The three light sources we process in this shader
 uniform Light u_ruberLight;
 uniform Light u_globalLight;
 uniform Light u_headLight;
 
+// The position of the viewer in world space
 uniform vec3 u_viewPosition;
 uniform vec3 u_viewNormal;
 
+// The position/normal of the fragment in world space
 in vec3 position;
 in vec3 normal;
+// The material properties of the fragment
 in vec4 color;
-in vec4 emissivity;
+uniform vec4 u_emissivity;
 
 layout(location=0) out vec4 fragColor;
 
+// Applies a point/directional light to the current fragment.
 vec4 applyLighting(Light light) {
   if (!light.enabled) {
     return vec4(0, 0, 0, 1);
@@ -60,7 +65,7 @@ vec4 applyLighting(Light light) {
 
 void main() {
   vec4 accumulatedColor = vec4(0, 0, 0, 0);
-  accumulatedColor += emissivity; // Emissive light for this fragment
+  accumulatedColor += u_emissivity; // Emissive light for this fragment
   accumulatedColor += applyLighting(u_ruberLight); // Light from Ruber
   accumulatedColor += applyLighting(u_globalLight); // Global illumination
   accumulatedColor += applyLighting(u_headLight); // Directional illumination

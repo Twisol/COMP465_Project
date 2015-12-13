@@ -4,6 +4,8 @@
 #include "Mesh.h"
 #include <sstream>
 
+// Implements the firing of missiles from silos when targets are in a certain
+// detection range of the silo.
 class SiloSystem {
 private:
    Mesh* missileMesh;

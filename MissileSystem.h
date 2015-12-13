@@ -5,12 +5,12 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <cmath>
 
+// Query result object for interfacing with the EntityDatabase
 struct DirectableEntity {
   std::string id;
   PositionComponent* position;
   MissileComponent* missile;
 };
-
 template<>
 struct EntityQuery<PositionComponent> {
   typedef PositionComponent* Entity;
@@ -27,6 +27,7 @@ struct EntityQuery<PositionComponent> {
   }
 };
 
+// Query result object for interfacing with the EntityDatabase
 template<>
 struct EntityQuery<DirectableEntity> {
   typedef DirectableEntity Entity;
@@ -46,6 +47,7 @@ struct EntityQuery<DirectableEntity> {
   }
 };
 
+// Implements missile orientation, propulsion, and tracking of tarets
 class MissileSystem {
 protected:
   static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id) {
