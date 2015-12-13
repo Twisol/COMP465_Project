@@ -43,9 +43,12 @@ static glm::mat4 GetWorldMatrix(EntityDatabase& entities, std::string const& id)
   return worldMatrix;
 }
 
+// FireMissile controls missile firing for all silo-enabled entities in the game
+// (including the ship and enemy bases)
 void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode targeting, Mesh* missileMesh) {
   bool canFire = true;
 
+  // check if the silo-enabled entity can fire
   if (state.entities.silos.at(owner).destroyed
     || state.entities.silos.at(owner).missiles <= 0
     || state.entities.silos.at(owner).current_missile != "")
@@ -53,6 +56,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     canFire = false;
   }
 
+  // if the entity can fire a missile, prepare and instantiate a new missile
   if (canFire) {
     glm::mat4 worldMatrix = GetWorldMatrix(state.entities, owner);
     std::stringstream tmpMissile;
@@ -60,11 +64,11 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     tmpMissile << "missile: " << owner << " " << state.entities.silos.at(owner).missiles;
     std::string newMissile = tmpMissile.str();
     switch (targeting) {
-      case SILO_TARGETING : {
+      case SILO_TARGETING: { // a ship missile
         orientation = state.entities.positions.at(owner).orientation;
       } break;
 
-      case SHIP_TARGETING : {
+      case SHIP_TARGETING: { // an enemy missile
         orientation = glm::normalize(glm::rotate(
           state.entities.positions.at(owner).orientation,
           glm::radians(90.0f),
@@ -73,8 +77,10 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
       } break;
 
     }
+    // remove a missile from silo cache
     state.entities.silos.at(owner).current_missile = newMissile;
     state.entities.silos.at(owner).missiles -= 1;
+
     // instantiate new missile
     state.entities.positions.insert(std::make_pair(newMissile, PositionComponent{
       "::world",
