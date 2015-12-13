@@ -55,14 +55,12 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
   if (canFire) {
     glm::mat4 worldMatrix = GetWorldMatrix(state.entities, owner);
     std::stringstream tmpMissile;
-    glm::vec3 offset;
     glm::quat orientation;
     tmpMissile << "missile: " << owner << " " << state.entities.silos.at(owner).missiles;
     std::string newMissile = tmpMissile.str();
     switch (targeting) {
       case SILO_TARGETING : {
         orientation = state.entities.positions.at(owner).orientation;
-        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 0.0f, -90.0f};
       } break;
 
       case SHIP_TARGETING : {
@@ -71,7 +69,6 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
           glm::radians(90.0f),
           glm::vec3{1.0f, 0.0f, 0.0f}
         ));
-        offset = state.entities.positions.at(owner).orientation * glm::vec3{0.0f, 70.0f, 0.0f};
       } break;
 
     }
@@ -80,7 +77,7 @@ void SiloSystem::FireMissile(GameState& state, std::string owner, targeting_mode
     // instantiate new missile
     state.entities.positions.insert(std::make_pair(newMissile, PositionComponent{
       "::world",
-      glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}} + offset,
+      glm::vec3{worldMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
       orientation,
     }));
     state.entities.missiles.insert(std::make_pair(newMissile, MissileComponent{
