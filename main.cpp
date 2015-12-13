@@ -76,7 +76,9 @@ std::string make_window_title(App const& app, int framerate) {
     !app.state.entities.silos.at("ship").destroyed)
   {
     return "Cadet passes flight training";
-  } else if (app.state.entities.silos.at("ship").destroyed) {
+  } else if (app.state.entities.silos.at("ship").destroyed
+  || (app.state.entities.silos.at("ship").missiles <= 0 && app.state.entities.silos.at("ship").current_missile == "")
+  ) {
     return "Cadet resigns from War College";
   } else {
     std::stringstream builder;
