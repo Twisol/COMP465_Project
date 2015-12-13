@@ -107,6 +107,42 @@ RenderSystem::RenderSystem(GLFWwindow* window, glm::mat4 projectionMatrix)
   }
 }
 
+struct Light {
+  glm::vec3 position;
+  glm::vec3 color;
+
+  float ambient;  // Approximates scattering for this light
+  float attenuation;
+  bool enabled;  // Whether the light should be utilized
+};
+
+static Light GetGlobalLight(GameState& state) {
+  return Light{
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+
+    0.3,
+    0.0,
+    true,  // TODO: Check enabled from game state
+  };
+}
+
+static Light GetRuberLight(GameState& state) {
+  return Light{
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
+
+    0.2,
+    0.000000003,
+    true,  // TODO: Check enabled from game state
+  };
+}
+
+static Light GetHeadLight(GameState& state) {
+  // TODO: Implement this, Ben!
+  return GetGlobalLight(state);
+}
+
 void RenderSystem::Render(GameState& state) {
   // Clear the previous render results
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -169,6 +205,13 @@ void RenderSystem::Render(GameState& state) {
       } else {
         glUniform4f(emissivityLocation, 0.0f, 0.0f, 0.0f, 1.0f);
       }
+
+      glm::mat4 inverseViewMatrix = glm::inverse(viewMatrix);
+      GLint const viewPositionLocation = glGetUniformLocation(this->shader_id, "u_viewPosition");
+      glUniform3fv(viewPositionLocation, 1, glm::value_ptr(glm::vec3{inverseViewMatrix * glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}}));
+
+      GLint const viewNormalLocation = glGetUniformLocation(this->shader_id, "u_viewNormal");
+      glUniform3fv(viewNormalLocation, 1, glm::value_ptr(glm::vec3{inverseViewMatrix * glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}}));
     }
 
     // Render the instance's geometry

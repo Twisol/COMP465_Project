@@ -12,6 +12,9 @@ struct Light {
 const Light ruberLight = Light(vec3(0, 0, 0), vec3(1, 1, 1), 0.2, 0.000000003, true);
 const float ambient = 0.3;  // Global ambient light
 
+uniform vec3 u_viewPosition;
+uniform vec3 u_viewNormal;
+
 in vec3 position;
 in vec3 normal;
 in vec4 color;
