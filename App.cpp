@@ -234,6 +234,8 @@ void App::OnKeyEvent(int key, int action, int mods) {
 
   if (action == GLFW_PRESS && key == GLFW_KEY_V) {
     this->state.active_camera = (this->state.active_camera + 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
+  } else if (action == GLFW_PRESS && key == GLFW_KEY_X) {
+    this->state.active_camera = (this->state.active_camera + (sizeof(CAMERAS) / sizeof(CAMERAS[0])) - 1) % (sizeof(CAMERAS) / sizeof(CAMERAS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_T) {
     this->state.time_scaling_idx = (this->state.time_scaling_idx + 1) % (sizeof(SCALINGS) / sizeof(SCALINGS[0]));
   } else if (action == GLFW_PRESS && key == GLFW_KEY_S) {
